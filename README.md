@@ -56,6 +56,19 @@
 | ライブ映像 | YouTube 埋め込みプレイヤー |
 | 時刻・時差 | ブラウザの `Intl.DateTimeFormat`（IANA タイムゾーン） |
 
+## ディレクトリ構成
+
+```
+src/
+├── data/        都市データ、ふりがなの対応表
+├── lib/         時差計算など、画面を持たない純粋関数
+├── globe/       three.js まわり（React の外側で描画ループを回す）
+├── features/    explore / compare / quiz / record の各モード
+└── components/  モードをまたいで使う UI
+```
+
+`globe/` を React コンポーネントの外に置いているのは、地球儀が毎フレーム描画を続けるためです。都市ピンは three.js のオブジェクトではなく canvas に重ねた DOM 要素で、描画ループの中から直接 `left` / `top` を書き換えます。React の state 経由にすると毎フレーム再レンダリングが起きるので、この境界は保ちます。
+
 ## セットアップ
 
 Node.js 20.19 以上、または 22.12 以上が必要です。
