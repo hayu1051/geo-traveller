@@ -1,4 +1,5 @@
 import { TAB_IDS, TAB_LABELS, type TabId } from '../features/tabs.ts'
+import AppIcon from './AppIcon.tsx'
 import styles from './AppHeader.module.css'
 
 type Props = {
@@ -10,7 +11,9 @@ function AppHeader({ tab, onTabChange }: Props) {
   return (
     <header className={styles.header}>
       <div className={styles.brand}>
-        <span className={styles.brandMark} />
+        <span className={styles.brandMark}>
+          <AppIcon size={20} />
+        </span>
         <span className={styles.brandName}>Geo Traveller</span>
       </div>
 

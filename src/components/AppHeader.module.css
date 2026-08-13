@@ -20,11 +20,8 @@
 }
 
 .brandMark {
-  display: block;
+  display: flex;
   flex: none;
-  width: 16px;
-  height: 16px;
-  background: var(--primary);
 }
 
 .brandName {
