@@ -1,0 +1,28 @@
+.app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+/* ヘッダーの下。地球儀とパネルを横に並べる */
+.main {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  position: relative;
+}
+
+/*
+ * 右側のパネル。原案は side / bottom / full の3種類あり、切り替えは #17 で入れる。
+ * ここでは幅を固定した side だけを実装する。
+ */
+.panel {
+  width: 420px;
+  flex: none;
+  overflow: auto;
+  background: var(--surface);
+  border-left: 1px solid var(--outline-variant);
+  padding: 28px 22px;
+}
