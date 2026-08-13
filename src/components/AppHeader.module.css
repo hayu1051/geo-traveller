@@ -1,0 +1,77 @@
+.header {
+  display: flex;
+  align-items: stretch;
+  flex: none;
+  background: var(--surface-container);
+  border-bottom: 1px solid var(--outline-variant);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+  /* 地球儀の上に重なるパネル類より前に出す */
+  position: relative;
+  z-index: 10;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  padding: 0 14px;
+  border-right: 1px solid var(--outline-variant);
+}
+
+.brandMark {
+  display: block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  background: var(--primary);
+}
+
+.brandName {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.tab {
+  position: relative;
+  flex: none;
+  min-height: 64px;
+  padding: 0 20px;
+  border: 0;
+  background: transparent;
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tab:hover {
+  background: color-mix(in srgb, var(--on-surface) 7%, transparent);
+}
+
+/* 選択中のタブを示す下線。文字色ではなくこの線で示すのが原案の作り */
+.indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--primary);
+}
+
+/* ヘッダー右端。#4 の時計と #16 のふりがなボタンが入る予定の余白 */
+.spacer {
+  flex: 1;
+  min-width: 8px;
+}
