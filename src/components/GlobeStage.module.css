@@ -1,0 +1,23 @@
+/*
+ * 地球儀の領域。#5 でこの中に three.js の canvas が入り、
+ * #8 では canvas の上に都市ピンの <button> を重ねる。
+ * そのため position: relative と overflow: hidden はここで確定させておく。
+ */
+.stage {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+/* #5 で three.js に置き換わる仮表示 */
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-surface-variant);
+  font-size: 14px;
+}
