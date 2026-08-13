@@ -1,4 +1,6 @@
 import * as THREE from 'three'
+import { loadWorldShapes, type WorldShapes } from './geoData.ts'
+import { DAY_PALETTE, drawWorld } from './paintTexture.ts'
 
 /*
  * 地球儀の描画。React の外側で動く。
@@ -12,8 +14,12 @@ import * as THREE from 'three'
  * 3D 座標をスクリーン座標へ投影するので、この方式は変えないこと。
  */
 
-/** 単色の球の色。#6 で世界地図のテクスチャに置き換わる */
-const SPHERE_COLOR = 0xa9d6e8
+/*
+ * テクスチャの大きさ。横は縦の 2 倍でないと正距円筒図法として成立しない。
+ * 2048 は緯線経線の文字が読める下限で、4096 にすると描き直しが目に見えて遅くなる。
+ */
+const TEXTURE_WIDTH = 2048
+const TEXTURE_HEIGHT = 1024
 
 const ZOOM_MIN = 1.55
 const ZOOM_MAX = 6
@@ -65,9 +71,46 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
   group.rotation.order = 'XYZ'
   scene.add(group)
 
+  // ----- テクスチャ -----
+
+  const textureCanvas = document.createElement('canvas')
+  textureCanvas.width = TEXTURE_WIDTH
+  textureCanvas.height = TEXTURE_HEIGHT
+  const textureCtx = textureCanvas.getContext('2d')
+
+  const texture = new THREE.CanvasTexture(textureCanvas)
+  // これが無いと色が沈んで見える
+  texture.colorSpace = THREE.SRGBColorSpace
+  texture.anisotropy = 4
+
+  let shapes: WorldShapes | null = null
+
+  function paint() {
+    if (!textureCtx) return
+    drawWorld(textureCtx, TEXTURE_WIDTH, TEXTURE_HEIGHT, DAY_PALETTE, shapes)
+    texture.needsUpdate = true
+  }
+
   const geometry = new THREE.SphereGeometry(1, 72, 54)
-  const material = new THREE.MeshBasicMaterial({ color: SPHERE_COLOR })
+  const material = new THREE.MeshBasicMaterial({ map: texture })
   group.add(new THREE.Mesh(geometry, material))
+
+  // 取得を待たずに緯線経線だけの状態を先に出す
+  paint()
+
+  /*
+   * 地図データの取得。失敗しても緯線経線だけの表示が残るので、
+   * 画面が真っ白になることはない。
+   */
+  const abort = new AbortController()
+  loadWorldShapes(abort.signal)
+    .then((loaded) => {
+      shapes = loaded
+      paint()
+    })
+    .catch(() => {
+      // オフラインや CDN 障害。フォールバックのまま続ける
+    })
 
   const view = { yaw: 0, pitch: 0, zoom: ZOOM_INITIAL }
   let spin = true
@@ -168,6 +211,7 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
     zoomBy,
     dispose() {
       stop()
+      abort.abort()
       document.removeEventListener('visibilitychange', onVisibilityChange)
       resizeObserver.disconnect()
       canvas.removeEventListener('pointerdown', onPointerDown)
@@ -177,6 +221,7 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
       canvas.removeEventListener('wheel', onWheel)
       geometry.dispose()
       material.dispose()
+      texture.dispose()
       renderer.dispose()
       canvas.remove()
     },
