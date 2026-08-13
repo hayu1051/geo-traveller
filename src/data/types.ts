@@ -29,7 +29,11 @@ export type City = {
   lat: number
   /** 経度。東が + 、西が - 。都市の「実際の」経度で、標準時の経線とは別物 */
   lng: number
-  /** 都市圏の人口（万人） */
+  /**
+   * 都市圏の人口（万人）。行政区画ではなく都市的な集積で数える。国連 World
+   * Urbanization Prospects の urban agglomeration に合わせているので、東京は
+   * 東京都の 1400 ではなく東京圏の 3700。都市を足すときも同じ基準で拾う
+   */
   pop: number
   /** IANA タイムゾーン。Intl.DateTimeFormat にそのまま渡す */
   tz: string
