@@ -1,7 +1,6 @@
 /*
- * 地球儀の領域。#5 でこの中に three.js の canvas が入り、
- * #8 では canvas の上に都市ピンの <button> を重ねる。
- * そのため position: relative と overflow: hidden はここで確定させておく。
+ * 地球儀の領域。#8 では canvas の上に都市ピンの <button> を重ねるので、
+ * position: relative と overflow: hidden はここで確定させている。
  */
 .stage {
   flex: 1;
@@ -11,13 +10,42 @@
   background: var(--surface);
 }
 
-/* #5 で three.js に置き換わる仮表示 */
-.placeholder {
+/* three.js が canvas を差し込む場所 */
+.host {
   position: absolute;
   inset: 0;
+}
+
+.controls {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--on-surface-variant);
-  font-size: 14px;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 5;
+}
+
+.control {
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--surface-container-high);
+  color: var(--primary-pressed);
+  font-size: 22px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+}
+
+.control:hover {
+  background: var(--primary);
+  color: var(--surface);
+}
+
+/* 「停止」「回す」は 2 文字入るので小さくする */
+.controlText {
+  font-size: 12px;
+  font-weight: 700;
 }
