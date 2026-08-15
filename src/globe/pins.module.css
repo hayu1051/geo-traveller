@@ -50,6 +50,13 @@
   fill: var(--primary);
 }
 
+/* ライブ映像がある都市の目印 */
+.liveDot {
+  fill: var(--error);
+  stroke: var(--surface);
+  stroke-width: 1;
+}
+
 .pin:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 0;

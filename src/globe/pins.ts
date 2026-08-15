@@ -19,10 +19,21 @@ const FRONT_THRESHOLD = 0.02
 /** 名前を隠すとき（位置あてクイズ）に出す文字 */
 const HIDDEN_LABEL = '？'
 
-const PIN_SVG =
-  '<svg viewBox="0 0 22 30" aria-hidden="true">' +
-  '<path d="M11 0C4.9 0 0 4.9 0 11c0 7.8 11 19 11 19s11-11.2 11-19C22 4.9 17.1 0 11 0z"/>' +
-  '</svg>'
+/** ピンの形。凡例でも同じ形を出すので公開する */
+export const PIN_PATH_D =
+  'M11 0C4.9 0 0 4.9 0 11c0 7.8 11 19 11 19s11-11.2 11-19C22 4.9 17.1 0 11 0z'
+
+/*
+ * ライブ映像がある都市には赤い点を入れる。
+ * 都市ごとに変わらない情報なので、状態で出し分けずに最初から形を変えて作る。
+ */
+function pinSvg(city: City): string {
+  const liveDot =
+    city.yt === undefined
+      ? ''
+      : `<circle class="${styles.liveDot ?? ''}" cx="11" cy="10.5" r="3"/>`
+  return `<svg viewBox="0 0 22 30" aria-hidden="true"><path d="${PIN_PATH_D}"/>${liveDot}</svg>`
+}
 
 /**
  * ピンの見た目を決める状態。React 側が持ち、変わったときだけ渡してくる。
@@ -113,7 +124,7 @@ export function createPinLayer(options: PinLayerOptions): PinLayer {
   const pins: Pin[] = cities.map((city) => {
     const el = document.createElement('button')
     el.type = 'button'
-    el.innerHTML = PIN_SVG
+    el.innerHTML = pinSvg(city)
 
     const mark = document.createElement('em')
     mark.className = styles.mark ?? ''
