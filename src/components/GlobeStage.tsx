@@ -40,6 +40,7 @@ function GlobeStage() {
       compareAId: null,
       compareBId: null,
       hideNames: false,
+      continent: null,
     })
   }, [selectedId])
 

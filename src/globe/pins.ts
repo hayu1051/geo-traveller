@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import type { City } from '../data/types.ts'
+import type { City, Continent } from '../data/types.ts'
 import styles from './pins.module.css'
 
 /*
@@ -36,6 +36,8 @@ export type PinState = {
   compareBId: string | null
   /** 位置あてクイズの出題中は名前を隠す */
   hideNames: boolean
+  /** 大陸で絞り込んでいるとき。外れた都市は薄く表示する */
+  continent: Continent | null
 }
 
 export const INITIAL_PIN_STATE: PinState = {
@@ -43,6 +45,7 @@ export const INITIAL_PIN_STATE: PinState = {
   compareAId: null,
   compareBId: null,
   hideNames: false,
+  continent: null,
 }
 
 export type PinLayer = {
@@ -155,6 +158,9 @@ export function createPinLayer(options: PinLayerOptions): PinLayer {
     if (pin.city.id === state.compareAId) names.push(styles.compareA)
     else if (pin.city.id === state.compareBId) names.push(styles.compareB)
     else if (pin.city.id === state.selectedId) names.push(styles.selected)
+    if (state.continent !== null && pin.city.cont !== state.continent) {
+      names.push(styles.dimmed)
+    }
     return names.filter(Boolean).join(' ')
   }
 
