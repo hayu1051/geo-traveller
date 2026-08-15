@@ -71,8 +71,7 @@ export const CITIES: City[] = [
     cur: 'ポンド（GBP）',
     trivia:
       '経度0度の線（本初子午線）が通る街。世界の時刻はここを基準に決められています。',
-    yt: 'M3EYAY2MftI',
-    ytNote: 'アビイ・ロードの横断歩道（EarthCam）',
+    // ロンドンのライブ配信は権利者が埋め込みを許可していないため、キーごと省く
   },
   {
     // 原案に無いため新規作成。実経度と標準時経線のずれを見せるための都市
@@ -124,8 +123,8 @@ export const CITIES: City[] = [
     cur: '豪ドル（AUD）',
     trivia:
       '日本より時間が進んでいて、日付が先に変わります。南半球なので、日本が冬のときは夏です。',
-    yt: 'KPrrWB1eo1I',
-    ytNote: 'ハーバーブリッジとオペラハウス（Sydney Live Camera）',
+    yt: '5uZa3-RMFos',
+    ytNote: 'シドニー湾のようす',
   },
   {
     // ライブ映像が無い都市。yt / ytNote はキーごと省略する
@@ -160,8 +159,8 @@ export const CITIES: City[] = [
     cur: 'レアル（BRL）',
     trivia:
       '南半球の都市。日本とはきっかり12時間の時差があり、昼と夜がちょうど逆になります。',
-    yt: '2PJfQY9LUoU',
-    ytNote: 'コパカバーナ海岸（EarthCam）',
+    yt: '14QUwx-ZRd0',
+    ytNote: 'コパカバーナ海岸',
   },
 ]
 
