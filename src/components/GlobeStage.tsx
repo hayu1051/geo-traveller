@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { CITIES } from '../data/cities.ts'
 import { createGlobe, type Globe } from '../globe/globe.ts'
 import styles from './GlobeStage.module.css'
 
@@ -9,12 +10,17 @@ function GlobeStage() {
   const hostRef = useRef<HTMLDivElement>(null)
   const globeRef = useRef<Globe | null>(null)
   const [spin, setSpin] = useState(true)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
 
   useEffect(() => {
     const host = hostRef.current
     if (!host) return
 
-    const globe = createGlobe(host, { onSpinChange: setSpin })
+    const globe = createGlobe(host, {
+      cities: CITIES,
+      onSpinChange: setSpin,
+      onSelectCity: setSelectedId,
+    })
     globeRef.current = globe
 
     return () => {
@@ -22,6 +28,20 @@ function GlobeStage() {
       globeRef.current = null
     }
   }, [])
+
+  /*
+   * 選択が変わったときだけ地球儀へ伝える。
+   * 逆に、地球儀の中で毎フレーム動いている値をここへ持ち込んではいけない。
+   * state になった瞬間に 1 秒 60 回の再レンダリングが始まる。
+   */
+  useEffect(() => {
+    globeRef.current?.setPinState({
+      selectedId,
+      compareAId: null,
+      compareBId: null,
+      hideNames: false,
+    })
+  }, [selectedId])
 
   function toggleSpin() {
     const next = !spin
