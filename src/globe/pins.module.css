@@ -50,6 +50,13 @@
   fill: var(--primary);
 }
 
+/* ライブ映像がある都市の目印 */
+.liveDot {
+  fill: var(--error);
+  stroke: var(--surface);
+  stroke-width: 1;
+}
+
 .pin:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 0;
@@ -70,6 +77,15 @@
   fill: var(--surface);
   stroke: var(--primary);
   stroke-width: 2.5;
+}
+
+/*
+ * 大陸で絞ったとき、外れた都市。
+ * 消さずに薄くするのは、「アジアはここ、その外側にも都市がある」という
+ * 位置関係が見えなくなると、絞り込みの意味が伝わらないため。
+ */
+.dimmed {
+  opacity: 0.22;
 }
 
 /* ピンの頭に出る A / B の文字 */

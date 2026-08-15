@@ -1,0 +1,157 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ----- 検索 ----- */
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+  border: 1px solid var(--outline);
+  border-radius: 100px;
+  background: var(--surface-container);
+}
+
+.search:focus-within {
+  border-color: var(--primary);
+}
+
+.searchIcon {
+  flex: none;
+  color: var(--on-surface-variant);
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--on-surface);
+  font-family: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.clear {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.clear:hover {
+  background: var(--surface-container-high);
+}
+
+/* ----- 大陸のチップ ----- */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 7px 14px;
+  border: 1px solid var(--outline);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--on-surface);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.chip:hover {
+  background: var(--surface-container-high);
+}
+
+.chipActive {
+  border-color: transparent;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font-weight: 700;
+}
+
+/* ----- 都市の一覧 ----- */
+
+.count {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.item:hover {
+  background: var(--surface-container-high);
+}
+
+.itemFlag {
+  flex: none;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.itemNames {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemName {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.itemSub {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+}
+
+.itemTime {
+  flex: none;
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary-pressed);
+}
+
+.emptyResult {
+  padding: 24px 10px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--on-surface-variant);
+}

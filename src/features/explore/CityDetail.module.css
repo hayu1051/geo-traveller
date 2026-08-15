@@ -1,0 +1,198 @@
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ----- 見出し ----- */
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.flag {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 48px;
+  border: 1px solid var(--outline-variant);
+  border-radius: 10px;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.names {
+  flex: 1;
+  min-width: 0;
+}
+
+.nameJa {
+  margin: 0 0 2px;
+  font-size: 32px;
+  line-height: 1.05;
+}
+
+.nameSub {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+}
+
+.back {
+  flex: none;
+  padding: 8px 10px;
+  border: 1px solid var(--outline-variant);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--on-surface);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.back:hover {
+  background: var(--surface-container-high);
+}
+
+/* ----- 時刻と時差 ----- */
+
+.clock {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.clockCell {
+  padding: 18px 0;
+}
+
+.clockCell:first-child {
+  padding-right: 18px;
+  border-right: 1px solid var(--outline-variant);
+}
+
+.clockCell:last-child {
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.caption {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-variant);
+}
+
+.time {
+  margin-top: 4px;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.05;
+  /* 数字の幅をそろえる。これが無いと 1 秒ごとに横幅が揺れる */
+  font-variant-numeric: tabular-nums;
+  color: var(--primary-pressed);
+}
+
+.date {
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.diffNum {
+  margin-top: 4px;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.diffText {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* ----- 今の時間帯 ----- */
+
+.phase {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.phaseLabel {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.phaseNote {
+  font-size: 13px;
+  color: var(--on-surface-variant);
+}
+
+/* ----- 事実の一覧 ----- */
+
+.facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  /* 枠線を引く代わりに背景を透かして、セルの隙間を線に見せる */
+  background: var(--outline-variant);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.fact {
+  padding: 14px 0 14px 14px;
+  background: var(--surface);
+}
+
+.fact:nth-child(odd) {
+  padding-left: 0;
+  padding-right: 14px;
+}
+
+.factKey {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--on-surface-variant);
+}
+
+.factValue {
+  margin-top: 3px;
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----- 豆知識 ----- */
+
+.trivia {
+  padding: 18px 0;
+}
+
+.triviaTitle {
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--primary-pressed);
+}
+
+.triviaText {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.7;
+  text-wrap: pretty;
+}

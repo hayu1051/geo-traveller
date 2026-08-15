@@ -1,0 +1,140 @@
+.live {
+  padding: 14px 0 18px;
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.caption {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-variant);
+}
+
+.badge {
+  padding: 3px 7px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/*
+ * 16:9 の枠。padding-top を幅の 56.25% にすると、中身が空でも比率が保たれる。
+ * 再生前後で高さが変わるとパネル全体がガタつくので、両方で同じ枠を使う。
+ */
+.frame {
+  position: relative;
+  width: 100%;
+  padding: 0;
+  padding-top: 56.25%;
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface-container-high);
+}
+
+.thumbButton {
+  display: block;
+  cursor: pointer;
+  background-position: center;
+  background-size: cover;
+  text-align: left;
+}
+
+.playLabel {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  padding: 10px 14px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.thumbButton:hover .playLabel {
+  background: var(--primary-hover);
+}
+
+.iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.note {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--on-surface-variant);
+}
+
+.watchLink {
+  flex: none;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--primary-pressed);
+  border-bottom: 2px solid var(--primary);
+}
+
+/* ----- ライブ映像がまだ無い都市 ----- */
+
+.empty {
+  padding: 26px 18px;
+  border-radius: 16px;
+  background: repeating-linear-gradient(
+    135deg,
+    transparent,
+    transparent 9px,
+    var(--surface-variant) 9px,
+    var(--surface-variant) 10px
+  );
+}
+
+.emptyTitle {
+  margin-bottom: 6px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.emptyText {
+  margin-bottom: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--on-surface-variant);
+}
+
+.searchLink {
+  display: inline-block;
+  padding: 10px 20px;
+  border: 1px solid var(--outline);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--primary-pressed);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.searchLink:hover {
+  background: var(--surface-container-high);
+}
