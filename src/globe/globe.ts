@@ -1,6 +1,8 @@
 import * as THREE from 'three'
+import type { City } from '../data/types.ts'
 import { loadWorldShapes, type WorldShapes } from './geoData.ts'
 import { paintGlobe } from './paintTexture.ts'
+import { createPinLayer, type PinLayer, type PinState } from './pins.ts'
 
 /*
  * 地球儀の描画。React の外側で動く。
@@ -54,6 +56,8 @@ export type Globe = {
   setSpin: (spin: boolean) => void
   /** ズーム。+ で引き、- で寄る */
   zoomBy: (delta: number) => void
+  /** ピンの見た目を更新する。選択が変わったときだけ呼ぶ */
+  setPinState: (state: PinState) => void
   /** 描画ループを止めて three.js の資源を解放する */
   dispose: () => void
 }
@@ -61,6 +65,10 @@ export type Globe = {
 export type GlobeOptions = {
   /** ドラッグで自動回転が解除されたときに呼ばれる。React 側のボタン表示を合わせるため */
   onSpinChange?: (spin: boolean) => void
+  /** ピンを出す都市。渡さなければピンは出ない */
+  cities?: City[]
+  /** ピンが押されたときに呼ばれる */
+  onSelectCity?: (id: string) => void
 }
 
 export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Globe {
@@ -132,6 +140,26 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
   const view = { yaw: 0, pitch: 0, zoom: ZOOM_INITIAL }
   let spin = true
 
+  // ----- 都市ピン -----
+
+  /*
+   * ピンの投影に使うので、今の表示サイズを持っておく。
+   * 毎フレーム getBoundingClientRect() で測るとレイアウト計算が走るため、
+   * ResizeObserver が教えてくれる値を覚えておいて使い回す。
+   */
+  let viewWidth = width
+  let viewHeight = height
+
+  const pinLayer: PinLayer | null = options.cities
+    ? createPinLayer({
+        host,
+        cities: options.cities,
+        camera,
+        group,
+        onSelect: options.onSelectCity ?? (() => undefined),
+      })
+    : null
+
   // ----- 操作 -----
 
   let drag: { x: number; y: number } | null = null
@@ -182,6 +210,8 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
     const w = host.clientWidth
     const h = host.clientHeight
     if (!w || !h) return
+    viewWidth = w
+    viewHeight = h
     renderer.setSize(w, h)
     camera.aspect = w / h
     camera.updateProjectionMatrix()
@@ -203,6 +233,13 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
     group.rotation.x = view.pitch
     camera.position.z = view.zoom
     renderer.render(scene, camera)
+
+    /*
+     * ピンの更新は render のあと。
+     * render の中で group と camera の行列が今のフレームの値に更新されるので、
+     * 先に呼ぶと 1 フレーム前の位置にピンが出て、回転中にずれて見える。
+     */
+    pinLayer?.update(viewWidth, viewHeight)
   }
 
   function start() {
@@ -230,9 +267,13 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
       spin = next
     },
     zoomBy,
+    setPinState(state: PinState) {
+      pinLayer?.setState(state)
+    },
     dispose() {
       stop()
       abort.abort()
+      pinLayer?.dispose()
       document.removeEventListener('visibilitychange', onVisibilityChange)
       resizeObserver.disconnect()
       canvas.removeEventListener('pointerdown', onPointerDown)
