@@ -18,6 +18,7 @@ import {
 } from '../../lib/time.ts'
 import { useNow } from '../../lib/useNow.ts'
 import styles from './CityDetail.module.css'
+import LivePlayer from './LivePlayer.tsx'
 
 /*
  * 選んだ都市の「今」。
@@ -92,6 +93,8 @@ function CityDetail({ city, onBack }: Props) {
         <span className={styles.phaseLabel}>今は {phase.label}</span>
         <span className={styles.phaseNote}>{phase.note}</span>
       </div>
+
+      <LivePlayer city={city} />
 
       <div className={styles.facts}>
         {facts.map((fact) => (
