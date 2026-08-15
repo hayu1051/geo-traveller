@@ -23,7 +23,13 @@ const TEXTURE_HEIGHT = 1024
 
 const ZOOM_MIN = 1.55
 const ZOOM_MAX = 6
-const ZOOM_INITIAL = 2.6
+
+/*
+ * 最初のカメラの距離。
+ * 画角 42 度なので上下に収まる限界は 21 度で、この距離だと球は 16.1 度に収まる。
+ * 近づけすぎると球が画面の上下に見切れ、#8 の都市ピンも画面外に出てしまう。
+ */
+const ZOOM_INITIAL = 3.6
 
 /** 自動回転の速さ（ラジアン / フレーム） */
 const SPIN_SPEED = 0.0011
