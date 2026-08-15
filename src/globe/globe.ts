@@ -42,6 +42,18 @@ const PITCH_LIMIT = 1.45
 const DRAG_SENSITIVITY = 0.006
 const WHEEL_SENSITIVITY = 0.0018
 
+/** 都市を選んだときに寄る距離。初期位置よりは近く、地図が読める程度 */
+const FLY_TO_ZOOM = 3.0
+
+/**
+ * flyTo で 1 フレームに詰める距離の割合。
+ * 残りの 12% ずつ縮めるので、最初は速く、近づくほどゆっくり止まる。
+ */
+const FLY_TO_EASING = 0.12
+
+/** 目標との差がこれ以下になったら到着とみなす（ラジアン） */
+const FLY_TO_ARRIVED = 0.002
+
 /*
  * 昼夜の境界を描き直す間隔。
  *
@@ -56,6 +68,8 @@ export type Globe = {
   setSpin: (spin: boolean) => void
   /** ズーム。+ で引き、- で寄る */
   zoomBy: (delta: number) => void
+  /** 指定した緯度経度が正面に来るまで、なめらかに回す */
+  flyTo: (lat: number, lng: number, zoom?: number) => void
   /** ピンの見た目を更新する。選択が変わったときだけ呼ぶ */
   setPinState: (state: PinState) => void
   /** 描画ループを止めて three.js の資源を解放する */
@@ -140,6 +154,9 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
   const view = { yaw: 0, pitch: 0, zoom: ZOOM_INITIAL }
   let spin = true
 
+  /** flyTo の行き先。到着するか、手で操作されたら null に戻る */
+  let target: { yaw: number; pitch: number; zoom: number } | null = null
+
   // ----- 都市ピン -----
 
   /*
@@ -172,6 +189,10 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
 
   function onPointerMove(event: PointerEvent) {
     if (!drag) return
+
+    // 手で回し始めたら、都市へ向かう動きは止めて操作を優先する
+    target = null
+
     view.yaw += (event.clientX - drag.x) * DRAG_SENSITIVITY
     view.pitch += (event.clientY - drag.y) * DRAG_SENSITIVITY
     view.pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, view.pitch))
@@ -195,7 +216,40 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
   }
 
   function zoomBy(delta: number) {
+    // 手でズームしたら、都市へ向かう動きは止める
+    target = null
     view.zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, view.zoom + delta))
+  }
+
+  /**
+   * 指定した場所を正面に持ってくる。
+   *
+   * 瞬間移動させず、毎フレーム少しずつ近づける。子どもが「今どこからどこへ動いたか」を
+   * 目で追えることが大事なので、途中経過が見える方式にしている。
+   */
+  function flyTo(lat: number, lng: number, zoom = FLY_TO_ZOOM) {
+    /*
+     * 緯度経度を回転角に直す。テクスチャの貼り方に合わせてあるので、
+     * pins.ts の toVector と同じ約束で動いている。
+     */
+    let yaw = (-(lng + 90) * Math.PI) / 180
+    const pitch = (lat * Math.PI) / 180
+
+    /*
+     * 近い方へ回す。
+     * 今 170 度、目標が -170 度のとき、そのまま補間すると 340 度ぶん逆回りしてしまう。
+     * 差が半周を超えないところまで 360 度ずつ足し引きしておく。
+     */
+    while (yaw - view.yaw > Math.PI) yaw -= 2 * Math.PI
+    while (view.yaw - yaw > Math.PI) yaw += 2 * Math.PI
+
+    target = { yaw, pitch, zoom: Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, zoom)) }
+
+    // 動いている最中に自動回転が混ざると、いつまでも着かない
+    if (spin) {
+      spin = false
+      options.onSpinChange?.(false)
+    }
   }
 
   canvas.addEventListener('pointerdown', onPointerDown)
@@ -228,7 +282,16 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
     // 昼夜の境界を進める。描き直しは重いので毎フレームはやらない
     if (now - lastPaint > REPAINT_INTERVAL_MS) paint()
 
-    if (spin) view.yaw += SPIN_SPEED
+    if (target) {
+      // 残りの差を毎フレーム一定の割合だけ詰める。近づくほど遅くなる
+      view.yaw += (target.yaw - view.yaw) * FLY_TO_EASING
+      view.pitch += (target.pitch - view.pitch) * FLY_TO_EASING
+      view.zoom += (target.zoom - view.zoom) * FLY_TO_EASING
+      if (Math.abs(target.yaw - view.yaw) < FLY_TO_ARRIVED) target = null
+    } else if (spin) {
+      view.yaw += SPIN_SPEED
+    }
+
     group.rotation.y = view.yaw
     group.rotation.x = view.pitch
     camera.position.z = view.zoom
@@ -264,9 +327,12 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
 
   return {
     setSpin(next: boolean) {
+      // 自動回転を戻したいときも、飛んでいる途中なら打ち切る
+      if (next) target = null
       spin = next
     },
     zoomBy,
+    flyTo,
     setPinState(state: PinState) {
       pinLayer?.setState(state)
     },
