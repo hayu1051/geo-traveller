@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CITIES } from '../data/cities.ts'
 import type { Continent } from '../data/types.ts'
 import { createGlobe, type Globe } from '../globe/globe.ts'
+import GlobeLegend from './GlobeLegend.tsx'
 import styles from './GlobeStage.module.css'
 
 /** ボタン 1 回あたりのズーム量。カメラの距離を動かすので + が引き、- が寄る */
@@ -102,6 +103,8 @@ function GlobeStage({ selectedId, continent, onSelectCity }: Props) {
   return (
     <section className={styles.stage}>
       <div ref={hostRef} className={styles.host} />
+
+      <GlobeLegend />
 
       <div className={styles.controls}>
         <button

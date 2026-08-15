@@ -52,6 +52,17 @@ const NIGHT_PALETTE: Palette = {
 /** 昼夜の境界線の色。CSS の --primary と同じ紫 */
 const TERMINATOR_COLOR = '#6750a4'
 
+/*
+ * 凡例に出す色。
+ * 地図の塗りと必ず同じ値になるよう、CSS へ書き写さずここから配る。
+ */
+export const LEGEND_COLORS = {
+  nightOcean: NIGHT_PALETTE.ocean,
+  dayOcean: DAY_PALETTE.ocean,
+  terminator: TERMINATOR_COLOR,
+  equator: DAY_PALETTE.equator,
+}
+
 const TERMINATOR_WIDTH = 4
 
 /**

@@ -1,0 +1,48 @@
+import { LEGEND_COLORS } from '../globe/paintTexture.ts'
+import { PIN_PATH_D } from '../globe/pins.ts'
+import styles from './GlobeLegend.module.css'
+
+/*
+ * 地球儀の色が何を表しているかの説明。
+ *
+ * 色は CSS に書き写さず paintTexture.ts から受け取る。同じ色を 2 か所に書くと、
+ * 地図の配色を変えたときに凡例だけ古い色のまま残る。
+ */
+
+const SWATCHES: { color: string; label: string }[] = [
+  { color: LEGEND_COLORS.nightOcean, label: '夜の海' },
+  { color: LEGEND_COLORS.dayOcean, label: '昼の海' },
+  { color: LEGEND_COLORS.terminator, label: '昼と夜の境目' },
+  { color: LEGEND_COLORS.equator, label: '赤道' },
+]
+
+function GlobeLegend() {
+  return (
+    <div className={styles.legend}>
+      <p className={styles.hint}>ドラッグで回転 / ホイールで拡大</p>
+
+      <ul className={styles.items}>
+        {SWATCHES.map((swatch) => (
+          <li key={swatch.label} className={styles.item}>
+            <span
+              className={styles.swatch}
+              style={{ background: swatch.color }}
+              aria-hidden="true"
+            />
+            {swatch.label}
+          </li>
+        ))}
+
+        <li className={styles.item}>
+          <svg className={styles.pinIcon} viewBox="0 0 22 30" aria-hidden="true">
+            <path d={PIN_PATH_D} />
+            <circle cx="11" cy="10.5" r="3" />
+          </svg>
+          ライブ映像あり
+        </li>
+      </ul>
+    </div>
+  )
+}
+
+export default GlobeLegend
