@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { loadWorldShapes, type WorldShapes } from './geoData.ts'
-import { DAY_PALETTE, drawWorld } from './paintTexture.ts'
+import { paintGlobe } from './paintTexture.ts'
 
 /*
  * 地球儀の描画。React の外側で動く。
@@ -33,6 +33,15 @@ const PITCH_LIMIT = 1.45
 
 const DRAG_SENSITIVITY = 0.006
 const WHEEL_SENSITIVITY = 0.0018
+
+/*
+ * 昼夜の境界を描き直す間隔。
+ *
+ * 境界が動く速さは 1 分あたり経度 0.25 度で、2048px のテクスチャ上では 1.4px しかない。
+ * 一方 1 回の描き直しは地図を 2 度描くので、フレームを落とすほどの重さがある。
+ * 短くしても見た目は変わらず引っかかりだけ増えるため、分単位にしている。
+ */
+const REPAINT_INTERVAL_MS = 60000
 
 export type Globe = {
   /** 自動回転の ON / OFF */
@@ -84,11 +93,13 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
   texture.anisotropy = 4
 
   let shapes: WorldShapes | null = null
+  let lastPaint = 0
 
   function paint() {
     if (!textureCtx) return
-    drawWorld(textureCtx, TEXTURE_WIDTH, TEXTURE_HEIGHT, DAY_PALETTE, shapes)
+    paintGlobe(textureCtx, TEXTURE_WIDTH, TEXTURE_HEIGHT, shapes, new Date())
     texture.needsUpdate = true
+    lastPaint = performance.now()
   }
 
   const geometry = new THREE.SphereGeometry(1, 72, 54)
@@ -175,8 +186,12 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
 
   let raf = 0
 
-  function loop() {
+  function loop(now: number) {
     raf = requestAnimationFrame(loop)
+
+    // 昼夜の境界を進める。描き直しは重いので毎フレームはやらない
+    if (now - lastPaint > REPAINT_INTERVAL_MS) paint()
+
     if (spin) view.yaw += SPIN_SPEED
     group.rotation.y = view.yaw
     group.rotation.x = view.pitch

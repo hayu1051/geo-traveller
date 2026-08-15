@@ -1,4 +1,5 @@
 import type { Ring, WorldShapes } from './geoData.ts'
+import { isNight, subsolar, terminatorLat, type SubsolarPoint } from './sun.ts'
 
 /*
  * 球に貼るテクスチャを canvas に描く。
@@ -6,10 +7,11 @@ import type { Ring, WorldShapes } from './geoData.ts'
  * 正距円筒図法（equirectangular）で、canvas の左端が西経 180 度、右端が東経 180 度、
  * 上端が北極、下端が南極。この形式はそのまま three.js の球に貼れる。
  *
- * 昼夜の境界は #7 でこの上に足す。ここでは昼のパレットで全面を描くだけ。
+ * 世界地図を描く drawWorld は色の組（パレット）を受け取るだけで、昼夜を知らない。
+ * paintGlobe が昼の色で 1 回、夜側だけを切り抜いて夜の色でもう 1 回呼ぶ。
  */
 
-export type Palette = {
+type Palette = {
   ocean: string
   land: string
   coast: string
@@ -23,7 +25,7 @@ export type Palette = {
   equator: string
 }
 
-export const DAY_PALETTE: Palette = {
+const DAY_PALETTE: Palette = {
   ocean: '#a9d6e8',
   land: '#d9cfb4',
   coast: '#20505e',
@@ -34,6 +36,29 @@ export const DAY_PALETTE: Palette = {
   labelHalo: 'rgba(255,255,255,0.5)',
   equator: 'rgba(214,40,40,0.85)',
 }
+
+const NIGHT_PALETTE: Palette = {
+  ocean: '#141d4e',
+  land: '#4a5480',
+  coast: '#a8b4d8',
+  border: 'rgba(255,255,255,0.4)',
+  grid: 'rgba(255,255,255,0.20)',
+  gridMinor: 'rgba(255,255,255,0.10)',
+  label: 'rgba(255,255,255,0.66)',
+  labelHalo: 'rgba(10,16,45,0.5)',
+  equator: 'rgba(255,82,82,0.9)',
+}
+
+/** 昼夜の境界線の色。CSS の --primary と同じ紫 */
+const TERMINATOR_COLOR = '#6750a4'
+
+const TERMINATOR_WIDTH = 4
+
+/**
+ * 境界線をなぞるときの横方向の間隔（px）。
+ * 境界はゆるやかな曲線なので、8px ごとに点を取れば折れ線でも滑らかに見える。
+ */
+const TERMINATOR_STEP = 8
 
 /*
  * 地図データは経度の飛びをならしてあるため ±180 をはみ出す点がある
@@ -208,10 +233,29 @@ function drawLabels(
 }
 
 /**
+ * 昼夜の境目を、地図の左端から右端まで折れ線でなぞる。
+ * 線を引くときと、夜側を切り抜くときの両方で使う。
+ */
+function traceTerminator(
+  ctx: CanvasRenderingContext2D,
+  sun: SubsolarPoint,
+  width: number,
+  height: number,
+): void {
+  ctx.beginPath()
+  for (let x = 0; x <= width; x += TERMINATOR_STEP) {
+    const lng = -180 + (x / width) * 360
+    const y = toY(terminatorLat(lng, sun), height)
+    if (x === 0) ctx.moveTo(x, y)
+    else ctx.lineTo(x, y)
+  }
+}
+
+/**
  * 世界地図を 1 枚描く。
  * shapes が null のとき（取得に失敗したとき）は海と緯線経線だけになる。
  */
-export function drawWorld(
+function drawWorld(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
@@ -235,5 +279,53 @@ export function drawWorld(
   ctx.beginPath()
   ctx.moveTo(0, height / 2)
   ctx.lineTo(width, height / 2)
+  ctx.stroke()
+}
+
+/**
+ * 地球儀のテクスチャを 1 枚ぶん描く。
+ *
+ * 昼と夜で色を変えるが、地図そのものは 2 通り持たない。
+ * 昼の色で全面を描いたあと、夜側だけを切り抜いて夜の色で描き直す。
+ * ctx.clip() を呼ぶと、以降の描画はその形の内側にしか出なくなる。
+ */
+export function paintGlobe(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  shapes: WorldShapes | null,
+  date: Date,
+): void {
+  const sun = subsolar(date)
+
+  drawWorld(ctx, width, height, DAY_PALETTE, shapes)
+
+  /*
+   * 夜側の切り抜き。
+   *
+   * 境界の線だけでは領域にならないので、線の端から地図の上辺（または下辺）へ
+   * 回り込んで閉じる。どちらへ回るかは、極が夜になっているかで決まる。
+   * 夏の北極は 1 日中昼なので、そのときは下辺、つまり南側が夜になる。
+   */
+  const northIsDark = isNight(89, sun.lng, sun)
+
+  ctx.save()
+  traceTerminator(ctx, sun, width, height)
+  if (northIsDark) {
+    ctx.lineTo(width, 0)
+    ctx.lineTo(0, 0)
+  } else {
+    ctx.lineTo(width, height)
+    ctx.lineTo(0, height)
+  }
+  ctx.closePath()
+  ctx.clip()
+  drawWorld(ctx, width, height, NIGHT_PALETTE, shapes)
+  ctx.restore()
+
+  // 境界線そのものを上描きする
+  ctx.strokeStyle = TERMINATOR_COLOR
+  ctx.lineWidth = TERMINATOR_WIDTH
+  traceTerminator(ctx, sun, width, height)
   ctx.stroke()
 }
