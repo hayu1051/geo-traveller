@@ -284,15 +284,22 @@ function ComparePanel({ pair, onChooseCity, onClearSlot, onActivateSlot }: Props
         ))}
       </div>
 
+      {/*
+       * 2 都市そろったら、都市の一覧は出さない。
+       *
+       * 選び終えたあとの一覧は使い道が無いのに 34 件ぶんの高さがあり、
+       * 比べたい中身がその上に押し上げられてしまう。
+       * 入れ替えたくなったら枠の ✕ で空ければ、また一覧が出る。
+       * 地球儀のピンはいつでも押せるので、選び直す道が塞がることはない。
+       */}
       {a && b ? (
         <Comparison a={a} b={b} />
       ) : (
-        <p className={styles.lead}>
-          2つの都市をえらぶと、距離と時差のかんけいが出ます。
-        </p>
+        <>
+          <p className={styles.lead}>2つの都市をえらぶと、距離と時差のかんけいが出ます。</p>
+          <CityChoices pair={pair} onChoose={onChooseCity} />
+        </>
       )}
-
-      <CityChoices pair={pair} onChoose={onChooseCity} />
     </div>
   )
 }
