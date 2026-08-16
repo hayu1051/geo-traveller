@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import type { City, Continent } from '../data/types.ts'
+import { latLngToVector3 } from './coords.ts'
 import styles from './pins.module.css'
 
 /*
@@ -91,20 +92,6 @@ type Pin = {
   lastVisible: boolean
 }
 
-/**
- * 緯度経度を球の上の 3D 座標に変換する。
- * テクスチャの貼られ方に合わせてあるので、式を変えるとピンが地図とずれる。
- */
-function toVector(lat: number, lng: number): THREE.Vector3 {
-  const phi = ((90 - lat) * Math.PI) / 180
-  const theta = ((lng + 180) * Math.PI) / 180
-  return new THREE.Vector3(
-    -Math.sin(phi) * Math.cos(theta),
-    Math.cos(phi),
-    Math.sin(phi) * Math.sin(theta),
-  )
-}
-
 export function createPinLayer(options: PinLayerOptions): PinLayer {
   const { host, cities, camera, group, onSelect } = options
 
@@ -147,7 +134,7 @@ export function createPinLayer(options: PinLayerOptions): PinLayer {
       el,
       label,
       mark,
-      position: toVector(city.lat, city.lng),
+      position: latLngToVector3(city.lat, city.lng),
       lastTransform: '',
       lastClassName: '',
       lastLabel: '',

@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
+  describeDayShift,
   describePhase,
   formatDiffShort,
   formatDiffText,
+  formatDistance,
+  formatEastWestGap,
+  formatHemisphere,
   formatLatitude,
   formatLongitude,
   formatMeridianGap,
@@ -90,6 +94,67 @@ describe('formatPopulation', () => {
   it('万人単位のまま桁区切りを入れる', () => {
     expect(formatPopulation(3700)).toBe('約 3,700万人')
     expect(formatPopulation(560)).toBe('約 560万人')
+  })
+})
+
+describe('formatDistance', () => {
+  it('1,000km 未満は 10km 単位で丸める', () => {
+    expect(formatDistance(1263.2 - 300)).toBe('約 960km')
+    expect(formatDistance(504)).toBe('約 500km')
+  })
+
+  it('1,000km 以上は 100km 単位で丸める', () => {
+    // 東京とニューヨーク
+    expect(formatDistance(10850)).toBe('約 10,900km')
+    // ロンドンとマドリード
+    expect(formatDistance(1263.2)).toBe('約 1,300km')
+  })
+
+  it('同じ場所どうしは 0km', () => {
+    expect(formatDistance(0)).toBe('約 0km')
+  })
+})
+
+describe('formatEastWestGap', () => {
+  it('東西を切り替える', () => {
+    expect(formatEastWestGap(15)).toBe('東へ 15°')
+    expect(formatEastWestGap(-3.57)).toBe('西へ 3.6°')
+  })
+
+  it('180 度を超える差もそのまま出す', () => {
+    // 東京からニューヨークは西回りで 213.7 度。時差 14 時間ぶんの 210 度と並べる
+    expect(formatEastWestGap(-213.7)).toBe('西へ 213.7°')
+    expect(formatEastWestGap(-210)).toBe('西へ 210°')
+  })
+
+  it('差が無いときは向きを言わない', () => {
+    expect(formatEastWestGap(0)).toBe('ほぼ同じ')
+    expect(formatEastWestGap(0.02)).toBe('ほぼ同じ')
+  })
+})
+
+describe('formatHemisphere', () => {
+  it('緯度の符号で分ける', () => {
+    expect(formatHemisphere(35.68)).toBe('北半球')
+    expect(formatHemisphere(-33.87)).toBe('南半球')
+  })
+
+  it('赤道は北半球あつかい', () => {
+    expect(formatHemisphere(0)).toBe('北半球')
+  })
+})
+
+describe('describeDayShift', () => {
+  it('進んでいる側は次の日', () => {
+    expect(describeDayShift(1, 'シドニー')).toBe('シドニーは もう次の日です')
+  })
+
+  it('遅れている側は前の日', () => {
+    expect(describeDayShift(-1, 'ニューヨーク')).toBe('ニューヨークは まだ前の日です')
+  })
+
+  it('ずれていなければ同じ日', () => {
+    expect(describeDayShift(0, 'ロンドン')).toBe('ロンドンも 同じ日付です')
   })
 })
 
