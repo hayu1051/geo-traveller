@@ -118,7 +118,19 @@ describe('CITIES', () => {
     it('豆知識は丁寧体で終わる', () => {
       // 原案は一部が「〜だよ」だった。同じ一覧の中で文体が混ざらないようにする
       for (const city of CITIES) {
-        expect(city.trivia, city.nameJa).toMatch(/(です|ます|ません|ましょう)(ね|よ)?。$/)
+        expect(city.trivia, city.nameJa).toMatch(
+          /(です|ます|ました|ません|ませんでした|ましょう)(ね|よ)?。$/,
+        )
+      }
+    })
+
+    it('豆知識に自分の都市名が入っていない', () => {
+      /*
+       * 豆知識は都市あてクイズのヒントとしてそのまま出る。
+       * 文の中に都市名があると答えがそのまま書いてあることになる。
+       */
+      for (const city of CITIES) {
+        expect(city.trivia, city.nameJa).not.toContain(city.nameJa)
       }
     })
 
