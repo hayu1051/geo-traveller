@@ -69,6 +69,46 @@ export function formatPopulation(inTenThousands: number): string {
   return `約 ${inTenThousands.toLocaleString('ja-JP')}万人`
 }
 
+/**
+ * 2 地点の距離。「約 10,900km」の形。
+ *
+ * 端数まで出しても意味が無いので丸める。1,000km より近いところは 10km 単位、
+ * それより遠いところは 100km 単位。どちらも桁数がだいたい 3 桁に収まって読みやすい。
+ */
+export function formatDistance(km: number): string {
+  const unit = km < 1000 ? 10 : 100
+  const rounded = Math.round(km / unit) * unit
+  return `約 ${rounded.toLocaleString('ja-JP')}km`
+}
+
+/**
+ * 経度の差を向き付きで書く。「東へ 213.7°」の形。
+ *
+ * + が東回り。180 度を超える値もそのまま出す。東京から西へ 213.7 度進むと
+ * ニューヨークに着くのは事実で、これを 146.3 度（東回り）に直してしまうと
+ * 時差 14 時間ぶんの 210 度と比べられなくなる。
+ */
+export function formatEastWestGap(degrees: number): string {
+  const rounded = Math.round(degrees * 10) / 10
+  if (rounded === 0) return 'ほぼ同じ'
+  return `${rounded > 0 ? '東' : '西'}へ ${String(Math.abs(rounded))}°`
+}
+
+/** 北半球 / 南半球。赤道ちょうどは北半球に入れる */
+export function formatHemisphere(lat: number): string {
+  return lat >= 0 ? '北半球' : '南半球'
+}
+
+/**
+ * 同じ瞬間に日付がずれているかどうかの一言。
+ * dayShift（-1 / 0 / +1）をそのまま渡す。
+ */
+export function describeDayShift(shift: number, name: string): string {
+  if (shift > 0) return `${name}は もう次の日です`
+  if (shift < 0) return `${name}は まだ前の日です`
+  return `${name}も 同じ日付です`
+}
+
 export type Phase = {
   /** 朝・昼・夜・深夜 */
   label: string
