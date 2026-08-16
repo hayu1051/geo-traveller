@@ -30,6 +30,8 @@ function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [continent, setContinent] = useState<Continent | null>(null)
   const [pair, setPair] = useState<Pair>(EMPTY_PAIR)
+  /** クイズで答え合わせをしたあと、地球儀に見せる都市 */
+  const [quizFocusId, setQuizFocusId] = useState<string | null>(null)
 
   /*
    * 地球儀のピンは 1 つしかないが、押したときの意味はタブで変わる。
@@ -37,6 +39,8 @@ function App() {
    * 分岐をここに置くと、地球儀はタブの存在を知らずに済む。
    */
   function handlePinClick(id: string) {
+    // クイズ中はピンで答えさせない。地球儀で解答するのは #14 の位置あてクイズだけ
+    if (tab === 'quiz') return
     if (tab === 'compare') setPair((prev) => choosePair(prev, id))
     else setSelectedId(id)
   }
@@ -68,29 +72,30 @@ function App() {
         }}
       />
     ),
-    quiz: <QuizPanel />,
+    quiz: <QuizPanel onFocusCity={setQuizFocusId} />,
     record: <RecordPanel />,
   }
 
   /*
    * 地球儀に伝える印は、今そのタブで意味のあるものだけにする。
+   *
    * 比較モードで探索モードの選択が紫のまま残っていると、A・B の印と混ざって
    * どれが比べられている都市なのか分からなくなる。
+   * クイズモードで指すのは、答え合わせが済んだ正解の都市だけ。出題中は何も指さない。
    */
-  const isCompare = tab === 'compare'
+  const globeMarks =
+    tab === 'compare'
+      ? { selectedId: null, continent: null, compareAId: pair.aId, compareBId: pair.bId }
+      : tab === 'quiz'
+        ? { selectedId: quizFocusId, continent: null, compareAId: null, compareBId: null }
+        : { selectedId, continent, compareAId: null, compareBId: null }
 
   return (
     <div className={styles.app}>
       <AppHeader tab={tab} onTabChange={setTab} />
 
       <div className={styles.main}>
-        <GlobeStage
-          selectedId={isCompare ? null : selectedId}
-          continent={isCompare ? null : continent}
-          compareAId={isCompare ? pair.aId : null}
-          compareBId={isCompare ? pair.bId : null}
-          onSelectCity={handlePinClick}
-        />
+        <GlobeStage {...globeMarks} onSelectCity={handlePinClick} />
         <aside className={styles.panel}>{panels[tab]}</aside>
       </div>
     </div>
