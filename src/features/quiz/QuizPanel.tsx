@@ -31,6 +31,30 @@ type Result = {
   correct: boolean
 }
 
+/**
+ * スピーカーの絵。今どちらの状態かを絵で示す（音が出ていれば波、消えていれば ✕）。
+ * 動画サイトなどでよく見る形に合わせてある。
+ */
+function SoundIcon({ on }: { on: boolean }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+      {/* スピーカー本体 */}
+      <path d="M4 9.5h3.2L11.5 6v12L7.2 14.5H4z" fill="currentColor" />
+      {on ? (
+        <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <path d="M15 9.2a4 4 0 0 1 0 5.6" />
+          <path d="M17.8 6.6a8 8 0 0 1 0 10.8" />
+        </g>
+      ) : (
+        <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <path d="m15.5 9.5 5 5" />
+          <path d="m20.5 9.5-5 5" />
+        </g>
+      )}
+    </svg>
+  )
+}
+
 function QuizPanel({ onFocusCity }: Props) {
   const [kind, setKind] = useState<QuizKind>('city')
   const [question, setQuestion] = useState<Question | null>(null)
@@ -119,13 +143,13 @@ function QuizPanel({ onFocusCity }: Props) {
         <button
           type="button"
           className={styles.sound}
-          aria-pressed={soundOn}
+          title={soundOn ? '音を消す' : '音を出す'}
           aria-label={soundOn ? '音を消す' : '音を出す'}
           onClick={() => {
             setSoundOn((value) => !value)
           }}
         >
-          {soundOn ? '🔊' : '🔇'}
+          <SoundIcon on={soundOn} />
         </button>
       </div>
 

@@ -42,16 +42,28 @@
   font-weight: 700;
 }
 
+/*
+ * アイコンだけのボタン。
+ * 枠が無いと絵が浮いているだけに見えて、押せることが伝わらない。
+ * 種類のチップ（--outline）より薄い線にして、主役ではないことを見た目で示す。
+ */
 .sound {
   flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 36px;
   height: 36px;
   border: 1px solid var(--outline-variant);
   border-radius: 50%;
   background: transparent;
-  font-size: 15px;
-  line-height: 1;
+  color: var(--on-surface-variant);
   cursor: pointer;
+}
+
+.sound:hover {
+  background: var(--surface-container-high);
+  color: var(--on-surface);
 }
 
 .sound:hover {
