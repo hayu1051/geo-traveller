@@ -158,11 +158,28 @@ describe('createQuestion', () => {
       expect(answer?.label).toBe('東京')
     })
 
-    it('解説に都市名と豆知識が入る', () => {
-      const question = createQuestion(options('city', { cityId: 'madrid' }))
-      expect(question.explain).toContain('マドリード')
-      expect(question.explain).toContain('スペイン')
-      expect(question.explain).toContain('日の入りがとても遅くなります')
+    it('ヒントにミニ豆知識がそのまま出る', () => {
+      // 文面そのものは cities.test.ts で見る。ここで確かめるのは受け渡しだけ
+      for (const city of CITIES) {
+        expect(createQuestion(options('city', { cityId: city.id })).hint, city.nameJa).toBe(
+          city.trivia,
+        )
+      }
+    })
+
+    it('解説に都市名・国名・現地表記が入る', () => {
+      const question = createQuestion(options('city', { cityId: 'cairo' }))
+      expect(question.explain).toContain('カイロ')
+      expect(question.explain).toContain('エジプト')
+      expect(question.explain).toContain('القاهرة')
+    })
+
+    it('ヒントと同じ文を解説で繰り返さない', () => {
+      // 同じ文が画面に2つ並ぶと、どちらを読めばよいのか分からなくなる
+      for (const city of CITIES) {
+        const question = createQuestion(options('city', { cityId: city.id }))
+        expect(question.explain, city.nameJa).not.toContain(question.hint)
+      }
     })
 
     it('国旗は持たない', () => {
@@ -200,6 +217,11 @@ describe('createQuestion', () => {
           expect(labels.filter((label) => label.includes('中国')), cityId).toHaveLength(1)
         }
       }
+    })
+
+    it('ヒントは付かない', () => {
+      // 旗そのものが手がかりなので、豆知識を足すと答えが分かってしまう
+      expect(createQuestion(options('flag')).hint).toBeUndefined()
     })
 
     it('解説に国旗・国名・都市名が入る', () => {

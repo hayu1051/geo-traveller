@@ -25,6 +25,11 @@ export type Question = {
   kind: QuizKind
   /** 問題文 */
   text: string
+  /**
+   * 追加のヒント。都市あてでミニ豆知識を出す。
+   * 問題文と分けてあるのは、画面で小さく別行に置いて「おまけの手がかり」に見せるため。
+   */
+  hint?: string
   /** 国旗クイズで出す絵文字。都市あてでは持たない */
   flag?: string
   choices: Choice[]

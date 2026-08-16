@@ -148,6 +148,31 @@
   text-wrap: pretty;
 }
 
+/* おまけの手がかり。問題文より弱く見せて、読む順番が分かるようにする */
+.hint {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--on-surface-variant);
+  text-wrap: pretty;
+}
+
+.hintLabel {
+  margin-right: 8px;
+  padding: 2px 7px;
+  border-radius: 100px;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  /* 文中に置くので、行の高さを本文に合わせる */
+  vertical-align: 0.05em;
+}
+
 /* ----- 選択肢 ----- */
 
 .choices {

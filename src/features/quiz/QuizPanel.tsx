@@ -198,6 +198,12 @@ function QuizPanel({ onFocusCity }: Props) {
               </div>
             )}
             <p className={styles.text}>{question.text}</p>
+            {question.hint !== undefined && (
+              <p className={styles.hint}>
+                <span className={styles.hintLabel}>ヒント</span>
+                {question.hint}
+              </p>
+            )}
           </div>
 
           <div className={styles.choices}>

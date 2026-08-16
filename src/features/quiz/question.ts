@@ -70,9 +70,20 @@ function cityQuestion(city: City, options: QuestionOptions): Question {
   return {
     kind: 'city',
     text,
+    /*
+     * ミニ豆知識をヒントとして出す。
+     * 半球・大陸・人口・通貨だけでは、知らない都市になると手がかりが数字ばかりになり
+     * 当てずっぽうになってしまう。その都市らしい話をひとつ添えて、考える取っかかりを作る。
+     */
+    hint: city.trivia,
     choices,
     answerId: city.id,
-    explain: `${city.nameJa}（${city.country}）です。${city.trivia}`,
+    /*
+     * 豆知識はヒントとして問題側に出してあるので、ここでは繰り返さない。
+     * 同じ文が画面に2つ並ぶと、どちらを読めばよいのか分からなくなる。
+     * かわりに現地表記を出して、答え合わせのときに新しいことが1つ増えるようにする。
+     */
+    explain: `${city.nameJa}（${city.country}）です。現地では ${city.nameLocal} と書きます。`,
     cityId: city.id,
   }
 }
@@ -100,11 +111,15 @@ function flagQuestion(city: City, options: QuestionOptions): Question {
 
   return {
     kind: 'flag',
-    text: 'この国旗はどこの国でしょう？',
+    /*
+     * 「どこの国」ではなく「国・地域」と聞く。
+     * 香港は国ではないので、国名を答えさせる形にすると問題が成り立たない。台湾も同じ。
+     */
+    text: 'この旗はどこの国・地域でしょう？',
     flag: city.flag,
     choices,
     answerId: city.id,
-    explain: `${city.flag} は ${city.country} の国旗。おもな都市は ${city.nameJa} です。`,
+    explain: `${city.flag} は ${city.country} の旗。おもな都市は ${city.nameJa} です。`,
     cityId: city.id,
   }
 }
