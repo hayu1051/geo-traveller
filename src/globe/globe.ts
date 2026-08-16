@@ -230,7 +230,7 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
   function flyTo(lat: number, lng: number, zoom = FLY_TO_ZOOM) {
     /*
      * 緯度経度を回転角に直す。テクスチャの貼り方に合わせてあるので、
-     * pins.ts の toVector と同じ約束で動いている。
+     * coords.ts の latLngToVector3 と同じ約束で動いている。
      */
     let yaw = (-(lng + 90) * Math.PI) / 180
     const pitch = (lat * Math.PI) / 180
