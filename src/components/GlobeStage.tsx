@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { CITIES } from '../data/cities.ts'
+import { CITIES, findCity } from '../data/cities.ts'
 import type { Continent } from '../data/types.ts'
 import { createGlobe, type Globe } from '../globe/globe.ts'
+import { centralAngle, midpoint } from '../lib/geo.ts'
 import GlobeLegend from './GlobeLegend.tsx'
 import styles from './GlobeStage.module.css'
 
@@ -24,13 +25,26 @@ const CONTINENT_VIEW: Record<Continent, { lat: number; lng: number }> = {
 /** 大陸を見るときは都市よりも引く */
 const CONTINENT_ZOOM = 3.4
 
+/*
+ * 比較する 2 都市を見るときの距離。
+ *
+ * カメラを引くほど一度に見える範囲は広がる。この距離だと中心から 73 度ぶんまで
+ * 見えるので、2 都市が 145 度くらい離れるまでは両方とも画面に入る。
+ * それを超える組み合わせ（東京とリオデジャネイロは 167 度）は引くしかない。
+ */
+const PAIR_ZOOM = 3.4
+const PAIR_ZOOM_FAR = 5.4
+const PAIR_FAR_ANGLE = 140
+
 type Props = {
   selectedId: string | null
   continent: Continent | null
-  onSelectCity: (id: string | null) => void
+  compareAId: string | null
+  compareBId: string | null
+  onSelectCity: (id: string) => void
 }
 
-function GlobeStage({ selectedId, continent, onSelectCity }: Props) {
+function GlobeStage({ selectedId, continent, compareAId, compareBId, onSelectCity }: Props) {
   const hostRef = useRef<HTMLDivElement>(null)
   const globeRef = useRef<Globe | null>(null)
   const [spin, setSpin] = useState(true)
@@ -73,17 +87,17 @@ function GlobeStage({ selectedId, continent, onSelectCity }: Props) {
   useEffect(() => {
     globeRef.current?.setPinState({
       selectedId,
-      compareAId: null,
-      compareBId: null,
+      compareAId,
+      compareBId,
       hideNames: false,
       continent,
     })
-  }, [selectedId, continent])
+  }, [selectedId, compareAId, compareBId, continent])
 
   // 都市を選んだらそこへ回す
   useEffect(() => {
     if (selectedId === null) return
-    const city = CITIES.find((item) => item.id === selectedId)
+    const city = findCity(selectedId)
     if (city) globeRef.current?.flyTo(city.lat, city.lng)
   }, [selectedId])
 
@@ -93,6 +107,31 @@ function GlobeStage({ selectedId, continent, onSelectCity }: Props) {
     const view = CONTINENT_VIEW[continent]
     globeRef.current?.flyTo(view.lat, view.lng, CONTINENT_ZOOM)
   }, [continent])
+
+  /*
+   * 比較モードの弧と視点。
+   *
+   * 2 都市がそろったら、弧の全体が見えるよう真ん中へ回す。片方だけのときは
+   * その都市へ寄る。弧を消すのは片方でも欠けたときで、globe 側が判断する。
+   */
+  useEffect(() => {
+    const globe = globeRef.current
+    if (!globe) return
+
+    const a = compareAId === null ? null : (findCity(compareAId) ?? null)
+    const b = compareBId === null ? null : (findCity(compareBId) ?? null)
+    globe.setCompareArc(a, b)
+
+    if (a && b) {
+      const center = midpoint(a, b)
+      const far = centralAngle(a, b) > PAIR_FAR_ANGLE
+      globe.flyTo(center.lat, center.lng, far ? PAIR_ZOOM_FAR : PAIR_ZOOM)
+    } else if (a) {
+      globe.flyTo(a.lat, a.lng)
+    } else if (b) {
+      globe.flyTo(b.lat, b.lng)
+    }
+  }, [compareAId, compareBId])
 
   function toggleSpin() {
     const next = !spin
