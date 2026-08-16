@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 import type { City } from '../data/types.ts'
+import type { LatLng } from '../lib/geo.ts'
+import { createArcLayer } from './arc.ts'
 import { loadWorldShapes, type WorldShapes } from './geoData.ts'
 import { paintGlobe } from './paintTexture.ts'
 import { createPinLayer, type PinLayer, type PinState } from './pins.ts'
@@ -72,6 +74,8 @@ export type Globe = {
   flyTo: (lat: number, lng: number, zoom?: number) => void
   /** ピンの見た目を更新する。選択が変わったときだけ呼ぶ */
   setPinState: (state: PinState) => void
+  /** 比較モードの弧。片方でも null なら消える */
+  setCompareArc: (a: LatLng | null, b: LatLng | null) => void
   /** 描画ループを止めて three.js の資源を解放する */
   dispose: () => void
 }
@@ -156,6 +160,14 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
 
   /** flyTo の行き先。到着するか、手で操作されたら null に戻る */
   let target: { yaw: number; pitch: number; zoom: number } | null = null
+
+  // ----- 比較モードの弧 -----
+
+  /*
+   * group に入れているので、地球儀を回すと弧も一緒に回る。
+   * ピンのように毎フレーム位置を計算し直す必要は無い。
+   */
+  const arcLayer = createArcLayer(group)
 
   // ----- 都市ピン -----
 
@@ -336,9 +348,11 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
     setPinState(state: PinState) {
       pinLayer?.setState(state)
     },
+    setCompareArc: arcLayer.setEndpoints,
     dispose() {
       stop()
       abort.abort()
+      arcLayer.dispose()
       pinLayer?.dispose()
       document.removeEventListener('visibilitychange', onVisibilityChange)
       resizeObserver.disconnect()
