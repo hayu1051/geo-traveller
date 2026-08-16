@@ -178,14 +178,14 @@ function Comparison({ a, b }: { a: City; b: City }) {
     { key: '2都市の距離', value: formatDistance(km), note: '地球の表面にそった最短の道' },
     { key: '今の時差', value: formatDiffShort(diff), note: formatDiffText(diff, a.nameJa) },
     {
-      key: '実際の経度のちがい',
+      key: '実際の経度の違い',
       value: formatEastWestGap(lngDiff),
       note: `${a.nameJa}から見た${b.nameJa}の向き`,
     },
     {
-      key: '標準時の経線のちがい',
+      key: '標準時の経線の違い',
       value: formatEastWestGap(meridianDiff),
-      note: '15°で 1時間ぶん',
+      note: '15°で 1時間',
     },
   ]
 
@@ -229,12 +229,12 @@ function Comparison({ a, b }: { a: City; b: City }) {
           {a.nameJa}が {formatLocalDate(a.tz, now)} のとき、{describeDayShift(shift, b.nameJa)}。
         </p>
         <p className={styles.dayShiftText}>
-          地球は西から東へまわっているので、東にある場所ほど先に朝がきます。
-          だから東へ進むほど時計は進み、ぐるっと一周すると 24 時間ぶんも進んでしまいます。
+          地球は西から東へ回っているので、東にある場所ほど先に朝がきます。
+          だから東へ進むほど時計は進み、ぐるっと一周すると 24 時間も進んでしまいます。
           そうならないように、太平洋の上に「日付変更線」が引いてあります。
-          この線をまたぐと、時計はそのままで日付だけが 1 日ぶん変わります。
+          この線をまたぐと、時計はそのままで日付だけが 1 日ずれます。
           {shift !== 0 &&
-            `${a.nameJa}と${b.nameJa}は この線をはさんだ反対がわにあるので、同じ時刻でも日付がちがいます。`}
+            `${a.nameJa}と${b.nameJa}は この線をはさんだ反対がわにあるので、同じ時刻でも日付が違います。`}
         </p>
       </section>
 
