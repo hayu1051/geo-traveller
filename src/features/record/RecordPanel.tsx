@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { findCity } from '../../data/cities.ts'
 import { QUIZ_KIND_LABELS, QUIZ_KINDS } from '../quiz/types.ts'
+import Furi from '../furigana/Furi.tsx'
 import { accuracy, type StudyRecord } from './record.ts'
 import styles from './RecordPanel.module.css'
 
@@ -47,14 +48,18 @@ function RecordPanel({ record, onSelectCity, onReset }: Props) {
       <div className={styles.stats}>
         {stats.map((stat) => (
           <div key={stat.label} className={styles.stat}>
-            <div className={styles.statLabel}>{stat.label}</div>
+            <div className={styles.statLabel}>
+              <Furi>{stat.label}</Furi>
+            </div>
             <div className={styles.statValue}>{stat.value}</div>
           </div>
         ))}
       </div>
 
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>クイズの種類ごと</h3>
+        <h3 className={styles.sectionTitle}>
+          <Furi>クイズの種類ごと</Furi>
+        </h3>
         <div className={styles.kinds}>
           {QUIZ_KINDS.map((kind) => {
             const score = record.byKind[kind]
@@ -62,9 +67,11 @@ function RecordPanel({ record, onSelectCity, onReset }: Props) {
             return (
               <div key={kind} className={styles.kind}>
                 <div className={styles.kindHead}>
-                  <span className={styles.kindName}>{QUIZ_KIND_LABELS[kind]}</span>
+                  <span className={styles.kindName}>
+                    <Furi>{QUIZ_KIND_LABELS[kind]}</Furi>
+                  </span>
                   <span className={styles.kindScore}>
-                    {scoreText(score.asked, score.correct)}
+                    <Furi>{scoreText(score.asked, score.correct)}</Furi>
                   </span>
                 </div>
                 {/* 棒は数字のおまけ。読み上げには数字だけ届けばよい */}
@@ -78,10 +85,12 @@ function RecordPanel({ record, onSelectCity, onReset }: Props) {
       </section>
 
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>見た都市（{visitedCities.length}）</h3>
+        <h3 className={styles.sectionTitle}>
+          <Furi>見た都市</Furi>（{visitedCities.length}）
+        </h3>
         {visitedCities.length === 0 ? (
           <p className={styles.empty}>
-            まだありません。探索モードで都市をえらぶと、ここに たまっていきます。
+            <Furi>まだありません。探索モードで都市をえらぶと、ここに たまっていきます。</Furi>
           </p>
         ) : (
           <div className={styles.visited}>
@@ -95,7 +104,9 @@ function RecordPanel({ record, onSelectCity, onReset }: Props) {
                 }}
               >
                 <span className={styles.visitedFlag}>{city.flag}</span>
-                <span className={styles.visitedName}>{city.nameJa}</span>
+                <span className={styles.visitedName}>
+                  <Furi>{city.nameJa}</Furi>
+                </span>
               </button>
             ))}
           </div>
@@ -106,7 +117,7 @@ function RecordPanel({ record, onSelectCity, onReset }: Props) {
         {confirming ? (
           <div className={styles.confirm}>
             <p className={styles.confirmText}>
-              記録をぜんぶ消します。もとに もどせません。
+              <Furi>記録をぜんぶ消します。もとに もどせません。</Furi>
             </p>
             <div className={styles.confirmActions}>
               <button
@@ -117,7 +128,7 @@ function RecordPanel({ record, onSelectCity, onReset }: Props) {
                   setConfirming(false)
                 }}
               >
-                消す
+                <Furi>消す</Furi>
               </button>
               <button
                 type="button"
@@ -126,7 +137,7 @@ function RecordPanel({ record, onSelectCity, onReset }: Props) {
                   setConfirming(false)
                 }}
               >
-                やめる
+                <Furi>やめる</Furi>
               </button>
             </div>
           </div>
@@ -138,7 +149,7 @@ function RecordPanel({ record, onSelectCity, onReset }: Props) {
               setConfirming(true)
             }}
           >
-            記録をリセット
+            <Furi>記録をリセット</Furi>
           </button>
         )}
       </section>

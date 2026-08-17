@@ -3,6 +3,7 @@ import { CITIES } from '../../data/cities.ts'
 import { CONTINENTS, type City, type Continent } from '../../data/types.ts'
 import { formatLocalTime } from '../../lib/time.ts'
 import { useNow } from '../../lib/useNow.ts'
+import Furi from '../furigana/Furi.tsx'
 import CityDetail from './CityDetail.tsx'
 import styles from './ExplorePanel.module.css'
 import { filterCities } from './search.ts'
@@ -34,9 +35,9 @@ function CityList({ cities, onSelect }: { cities: City[]; onSelect: (id: string)
   if (cities.length === 0) {
     return (
       <p className={styles.emptyResult}>
-        見つかりませんでした。
+        <Furi>見つかりませんでした。</Furi>
         <br />
-        ひらがなでも探せます（例: とうきょう）。
+        <Furi>ひらがなでも探せます（例: とうきょう）。</Furi>
       </p>
     )
   }
@@ -54,8 +55,12 @@ function CityList({ cities, onSelect }: { cities: City[]; onSelect: (id: string)
           >
             <span className={styles.itemFlag}>{city.flag}</span>
             <span className={styles.itemNames}>
-              <span className={styles.itemName}>{city.nameJa}</span>
-              <span className={styles.itemSub}>{city.country}</span>
+              <span className={styles.itemName}>
+                <Furi>{city.nameJa}</Furi>
+              </span>
+              <span className={styles.itemSub}>
+                <Furi>{city.country}</Furi>
+              </span>
             </span>
             <span className={styles.itemTime}>{formatLocalTime(city.tz, now)}</span>
           </button>
@@ -149,7 +154,7 @@ function ExplorePanel({ selectedId, continent, onSelectCity, onContinentChange }
             handleChipClick(null)
           }}
         >
-          全部
+          <Furi>全部</Furi>
         </button>
         {CONTINENTS.map((name) => (
           <button
@@ -166,7 +171,10 @@ function ExplorePanel({ selectedId, continent, onSelectCity, onContinentChange }
         ))}
       </div>
 
-      <div className={styles.count}>{results.length}件</div>
+      <div className={styles.count}>
+        {results.length}
+        <Furi>件</Furi>
+      </div>
       <CityList cities={results} onSelect={handleSelect} />
     </div>
   )
