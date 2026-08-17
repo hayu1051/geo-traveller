@@ -18,6 +18,7 @@ import {
 } from '../../lib/time.ts'
 import { useNow } from '../../lib/useNow.ts'
 import styles from './CityDetail.module.css'
+import Furi from '../furigana/Furi.tsx'
 import LivePlayer from './LivePlayer.tsx'
 
 /*
@@ -64,34 +65,48 @@ function CityDetail({ city, onBack }: Props) {
       <div className={styles.head}>
         <div className={styles.flag}>{city.flag}</div>
         <div className={styles.names}>
-          <h2 className={styles.nameJa}>{city.nameJa}</h2>
+          <h2 className={styles.nameJa}>
+            <Furi>{city.nameJa}</Furi>
+          </h2>
           <div className={styles.nameSub}>
-            {city.nameLocal} ・ {city.country}
+            {city.nameLocal} ・ <Furi>{city.country}</Furi>
           </div>
         </div>
         <button type="button" className={styles.back} onClick={onBack}>
-          戻る
+          <Furi>戻る</Furi>
         </button>
       </div>
 
       <div className={styles.clock}>
         <div className={styles.clockCell}>
-          <div className={styles.caption}>現地の時刻</div>
+          <div className={styles.caption}>
+            <Furi>現地の時刻</Furi>
+          </div>
           <div className={styles.time}>{formatLocalTime(city.tz, now)}</div>
-          <div className={styles.date}>{formatLocalDate(city.tz, now)}</div>
+          <div className={styles.date}>
+            <Furi>{formatLocalDate(city.tz, now)}</Furi>
+          </div>
         </div>
         <div className={styles.clockCell}>
           <div>
-            <div className={styles.caption}>日本との時差</div>
+            <div className={styles.caption}>
+              <Furi>日本との時差</Furi>
+            </div>
             <div className={styles.diffNum}>{formatDiffShort(diff)}</div>
           </div>
-          <div className={styles.diffText}>{formatDiffText(diff, BASE_LABEL)}</div>
+          <div className={styles.diffText}>
+            <Furi>{formatDiffText(diff, BASE_LABEL)}</Furi>
+          </div>
         </div>
       </div>
 
       <div className={styles.phase}>
-        <span className={styles.phaseLabel}>今は {phase.label}</span>
-        <span className={styles.phaseNote}>{phase.note}</span>
+        <span className={styles.phaseLabel}>
+          <Furi>今は</Furi> <Furi>{phase.label}</Furi>
+        </span>
+        <span className={styles.phaseNote}>
+          <Furi>{phase.note}</Furi>
+        </span>
       </div>
 
       <LivePlayer city={city} />
@@ -99,15 +114,23 @@ function CityDetail({ city, onBack }: Props) {
       <div className={styles.facts}>
         {facts.map((fact) => (
           <div key={fact.key} className={styles.fact}>
-            <div className={styles.factKey}>{fact.key}</div>
-            <div className={styles.factValue}>{fact.value}</div>
+            <div className={styles.factKey}>
+              <Furi>{fact.key}</Furi>
+            </div>
+            <div className={styles.factValue}>
+              <Furi>{fact.value}</Furi>
+            </div>
           </div>
         ))}
       </div>
 
       <div className={styles.trivia}>
-        <div className={styles.triviaTitle}>ミニ豆知識</div>
-        <p className={styles.triviaText}>{city.trivia}</p>
+        <div className={styles.triviaTitle}>
+          <Furi>ミニ豆知識</Furi>
+        </div>
+        <p className={styles.triviaText}>
+          <Furi>{city.trivia}</Furi>
+        </p>
       </div>
     </div>
   )

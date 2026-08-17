@@ -1,3 +1,4 @@
+import Furi from '../features/furigana/Furi.tsx'
 import { LEGEND_COLORS } from '../globe/paintTexture.ts'
 import { PIN_PATH_D } from '../globe/pins.ts'
 import styles from './GlobeLegend.module.css'
@@ -19,7 +20,9 @@ const SWATCHES: { color: string; label: string }[] = [
 function GlobeLegend() {
   return (
     <div className={styles.legend}>
-      <p className={styles.hint}>ドラッグで回転 / ホイールで拡大</p>
+      <p className={styles.hint}>
+        <Furi>ドラッグで回転</Furi> / <Furi>ホイールで拡大</Furi>
+      </p>
 
       <ul className={styles.items}>
         {SWATCHES.map((swatch) => (
@@ -29,7 +32,7 @@ function GlobeLegend() {
               style={{ background: swatch.color }}
               aria-hidden="true"
             />
-            {swatch.label}
+            <Furi>{swatch.label}</Furi>
           </li>
         ))}
 
@@ -38,7 +41,7 @@ function GlobeLegend() {
             <path d={PIN_PATH_D} />
             <circle cx="11" cy="10.5" r="3" />
           </svg>
-          ライブ映像あり
+          <Furi>ライブ映像あり</Furi>
         </li>
       </ul>
     </div>

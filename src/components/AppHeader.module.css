@@ -67,8 +67,91 @@
   background: var(--primary);
 }
 
-/* ヘッダー右端。#4 の時計と #16 のふりがなボタンが入る予定の余白 */
+/* ヘッダー右端。#4 の時計が入る予定の余白 */
 .spacer {
   flex: 1;
   min-width: 8px;
+}
+
+/*
+ * ふりがなの出し入れ。
+ *
+ * align-self が要る。ヘッダーは align-items: stretch なので、
+ * 指定しないとタブと同じ 64px まで縦に引き伸ばされて、
+ * ボタンなのにヘッダーの帯そのものに見えてしまう。
+ */
+.furi {
+  flex: none;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-right: 14px;
+  padding: 6px 8px 6px 12px;
+  border: 0;
+  border-radius: 100px;
+  background: transparent;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+}
+
+.furi:hover {
+  background: color-mix(in srgb, var(--on-surface) 7%, transparent);
+}
+
+.furi[aria-checked='true'] {
+  color: var(--on-surface);
+}
+
+.furiLabel {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/*
+ * スイッチ。Material 3 の作りに合わせて、切のときは枠線＋小さいつまみ、
+ * 入のときは塗りつぶし＋大きいつまみにする。
+ * 色だけで示すと、色が見分けにくい人に状態が伝わらない。大きさでも変える。
+ */
+.furiTrack {
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  width: 40px;
+  height: 24px;
+  border: 2px solid var(--outline);
+  border-radius: 100px;
+  background: var(--surface-variant);
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.furi[aria-checked='true'] .furiTrack {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.furiKnob {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--outline);
+  transform: translateY(-50%);
+  transition:
+    left 0.15s,
+    width 0.15s,
+    height 0.15s,
+    background 0.15s;
+}
+
+.furi[aria-checked='true'] .furiKnob {
+  left: 20px;
+  width: 16px;
+  height: 16px;
+  background: var(--on-primary);
 }

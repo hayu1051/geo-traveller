@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { CITIES, findCity } from '../data/cities.ts'
 import type { Continent } from '../data/types.ts'
+import Furi from '../features/furigana/Furi.tsx'
 import { createGlobe, type Globe } from '../globe/globe.ts'
 import { centralAngle, midpoint } from '../lib/geo.ts'
 import GlobeLegend from './GlobeLegend.tsx'
@@ -177,7 +178,7 @@ function GlobeStage({
           onClick={toggleSpin}
           aria-pressed={spin}
         >
-          {spin ? '停止' : '回す'}
+          <Furi>{spin ? '停止' : '回す'}</Furi>
         </button>
       </div>
     </section>

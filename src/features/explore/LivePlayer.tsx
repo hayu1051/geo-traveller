@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { City } from '../../data/types.ts'
+import Furi from '../furigana/Furi.tsx'
 import styles from './LivePlayer.module.css'
 
 /*
@@ -32,12 +33,17 @@ function LivePlayer({ city }: Props) {
     return (
       <section className={styles.live}>
         <div className={styles.header}>
-          <span className={styles.caption}>ライブ映像</span>
+          <span className={styles.caption}>
+            <Furi>ライブ映像</Furi>
+          </span>
         </div>
         <div className={styles.empty}>
-          <div className={styles.emptyTitle}>ライブカメラは準備中です</div>
+          <div className={styles.emptyTitle}>
+            <Furi>ライブカメラは準備中です</Furi>
+          </div>
           <div className={styles.emptyText}>
-            この都市の配信はこれから選びます。今は YouTube で探せます。
+            <Furi>この都市の配信はこれから選びます。</Furi>
+            <Furi>今は</Furi> YouTube <Furi>で探せます。</Furi>
           </div>
           <a
             className={styles.searchLink}
@@ -45,7 +51,7 @@ function LivePlayer({ city }: Props) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            YouTubeで探す →
+            YouTube<Furi>で探す</Furi> →
           </a>
         </div>
       </section>
@@ -62,7 +68,9 @@ function LivePlayer({ city }: Props) {
   return (
     <section className={styles.live}>
       <div className={styles.header}>
-        <span className={styles.caption}>ライブ映像</span>
+        <span className={styles.caption}>
+            <Furi>ライブ映像</Furi>
+          </span>
         <span className={styles.badge}>LIVE</span>
       </div>
 
@@ -85,19 +93,23 @@ function LivePlayer({ city }: Props) {
             setPlaying(true)
           }}
         >
-          <span className={styles.playLabel}>▶ ライブを見る</span>
+          <span className={styles.playLabel}>
+            ▶ <Furi>ライブを見る</Furi>
+          </span>
         </button>
       )}
 
       <div className={styles.foot}>
-        <span className={styles.note}>{city.ytNote}</span>
+        <span className={styles.note}>
+          {city.ytNote !== undefined && <Furi>{city.ytNote}</Furi>}
+        </span>
         <a
           className={styles.watchLink}
           href={WATCH_BASE + city.yt}
           target="_blank"
           rel="noopener noreferrer"
         >
-          YouTubeで見る
+          YouTube<Furi>で見る</Furi>
         </a>
       </div>
     </section>

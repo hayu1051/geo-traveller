@@ -75,3 +75,29 @@ button {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
+
+/*
+ * ふりがな。
+ *
+ * <rt> は常に DOM にあり、出し入れは表示の切り替えだけで済ませる。
+ * 消すたびに文字列を組み直すと、そのぶん画面が作り直されて重くなる。
+ */
+rt {
+  font-size: 0.5em;
+  font-weight: 400;
+  letter-spacing: 0;
+  /* ルビは飾りなので、本文を選んでコピーしたときに混ざらないようにする */
+  user-select: none;
+}
+
+[data-furi='false'] rt {
+  display: none;
+}
+
+/*
+ * ルビのぶんだけ行の高さが変わり、出し入れのたびに下の要素がずれる。
+ * あらかじめ上に場所を空けておくと、切り替えても行の位置が動かない。
+ */
+ruby {
+  ruby-position: over;
+}

@@ -7,6 +7,7 @@ import {
   recordWrong,
   type QuizHistory,
 } from './history.ts'
+import Furi from '../furigana/Furi.tsx'
 import { createQuestion } from './question.ts'
 import styles from './QuizPanel.module.css'
 import { playResultSound } from './sound.ts'
@@ -180,7 +181,7 @@ function QuizPanel({ onGlobeChange, pinAnswerRef, onAnswered }: Props) {
                 changeKind(id)
               }}
             >
-              {QUIZ_KIND_LABELS[id]}
+              <Furi>{QUIZ_KIND_LABELS[id]}</Furi>
             </button>
           ))}
         </div>
@@ -200,9 +201,9 @@ function QuizPanel({ onGlobeChange, pinAnswerRef, onAnswered }: Props) {
       {question === null ? (
         <div className={styles.start}>
           <p className={styles.startText}>
-            {QUIZ_KIND_LABELS[kind]}クイズをはじめます。
+            <Furi>{`${QUIZ_KIND_LABELS[kind]}クイズをはじめます。`}</Furi>
             <br />
-            まちがえた問題は、あとでもう一度出てきます。
+            <Furi>まちがえた問題は、あとでもう一度出てきます。</Furi>
           </p>
           <button
             type="button"
@@ -211,26 +212,34 @@ function QuizPanel({ onGlobeChange, pinAnswerRef, onAnswered }: Props) {
               nextQuestion(kind)
             }}
           >
-            はじめる
+            <Furi>はじめる</Furi>
           </button>
         </div>
       ) : (
         <>
           <div className={styles.scores}>
             <div className={styles.score}>
-              <div className={styles.scoreLabel}>といた数</div>
+              <div className={styles.scoreLabel}>
+                <Furi>といた数</Furi>
+              </div>
               <div className={styles.scoreValue}>{asked}</div>
             </div>
             <div className={styles.score}>
-              <div className={styles.scoreLabel}>正解</div>
+              <div className={styles.scoreLabel}>
+                <Furi>正解</Furi>
+              </div>
               <div className={styles.scoreValue}>{correct}</div>
             </div>
             <div className={styles.score}>
-              <div className={styles.scoreLabel}>連続正解</div>
+              <div className={styles.scoreLabel}>
+                <Furi>連続正解</Furi>
+              </div>
               <div className={styles.scoreValue}>{streak}</div>
             </div>
             <div className={styles.score}>
-              <div className={styles.scoreLabel}>最高記録</div>
+              <div className={styles.scoreLabel}>
+                <Furi>最高記録</Furi>
+              </div>
               <div className={styles.scoreValue}>{best}</div>
             </div>
           </div>
@@ -241,11 +250,13 @@ function QuizPanel({ onGlobeChange, pinAnswerRef, onAnswered }: Props) {
                 {question.flag}
               </div>
             )}
-            <p className={styles.text}>{question.text}</p>
+            <p className={styles.text}>
+              <Furi>{question.text}</Furi>
+            </p>
             {question.hint !== undefined && (
               <p className={styles.hint}>
                 <span className={styles.hintLabel}>ヒント</span>
-                {question.hint}
+                <Furi>{question.hint}</Furi>
               </p>
             )}
           </div>
@@ -257,8 +268,8 @@ function QuizPanel({ onGlobeChange, pinAnswerRef, onAnswered }: Props) {
              */
             <div className={result ? styles.tappedDone : styles.tapping}>
               {result === null
-                ? '地球儀の ？ のピンをタップしてこたえてね'
-                : `タップしたのは ${findCity(result.choiceId)?.nameJa ?? '？'} です`}
+                ? <Furi>地球儀の ？ のピンをタップしてこたえてね</Furi>
+                : <Furi>{`タップしたのは ${findCity(result.choiceId)?.nameJa ?? '？'} です`}</Furi>}
             </div>
           ) : (
             <div className={styles.choices}>
@@ -282,10 +293,14 @@ function QuizPanel({ onGlobeChange, pinAnswerRef, onAnswered }: Props) {
                       answer(choice.id)
                     }}
                   >
-                    {choice.label}
-                    {result && isAnswer && <span className={styles.mark}>正解</span>}
+                    <Furi>{choice.label}</Furi>
+                    {result && isAnswer && <span className={styles.mark}>
+                        <Furi>正解</Furi>
+                      </span>}
                     {result && isPicked && !isAnswer && (
-                      <span className={styles.mark}>えらんだ答え</span>
+                      <span className={styles.mark}>
+                        <Furi>えらんだ答え</Furi>
+                      </span>
                     )}
                   </button>
                 )
@@ -296,9 +311,11 @@ function QuizPanel({ onGlobeChange, pinAnswerRef, onAnswered }: Props) {
           {result && (
             <div className={result.correct ? styles.feedbackOk : styles.feedbackNg}>
               <div className={styles.verdict}>
-                {result.correct ? '正解！' : 'ざんねん…'}
+                <Furi>{result.correct ? '正解！' : 'ざんねん…'}</Furi>
               </div>
-              <p className={styles.explain}>{question.explain}</p>
+              <p className={styles.explain}>
+                <Furi>{question.explain}</Furi>
+              </p>
             </div>
           )}
 
@@ -311,10 +328,10 @@ function QuizPanel({ onGlobeChange, pinAnswerRef, onAnswered }: Props) {
                 nextQuestion(kind)
               }}
             >
-              次の問題
+              <Furi>次の問題</Furi>
             </button>
             <button type="button" className={styles.quit} onClick={quit}>
-              やめる
+              <Furi>やめる</Furi>
             </button>
           </div>
         </>

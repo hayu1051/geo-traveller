@@ -22,6 +22,7 @@ import {
   standardMeridian,
 } from '../../lib/time.ts'
 import { useNow } from '../../lib/useNow.ts'
+import Furi from '../furigana/Furi.tsx'
 import styles from './ComparePanel.module.css'
 import type { Pair, PairSlot } from './selection.ts'
 
@@ -69,7 +70,9 @@ function Slot({
     <div className={className}>
       <div className={styles.slotHead}>
         <span className={styles.slotLabel}>{label}</span>
-        {active && <span className={styles.slotBadge}>えらび中</span>}
+        {active && <span className={styles.slotBadge}>
+            <Furi>えらび中</Furi>
+          </span>}
         {city && (
           <button
             type="button"
@@ -93,10 +96,14 @@ function Slot({
         {city ? (
           <>
             <span className={styles.slotFlag}>{city.flag}</span>
-            <span className={styles.slotName}>{city.nameJa}</span>
+            <span className={styles.slotName}>
+              <Furi>{city.nameJa}</Furi>
+            </span>
           </>
         ) : (
-          <span className={styles.slotEmpty}>まだ えらんでいません</span>
+          <span className={styles.slotEmpty}>
+            <Furi>まだ えらんでいません</Furi>
+          </span>
         )}
       </button>
     </div>
@@ -113,7 +120,9 @@ function CityChoices({
 }) {
   return (
     <div className={styles.choices}>
-      <div className={styles.sectionTitle}>都市をえらぶ</div>
+      <div className={styles.sectionTitle}>
+        <Furi>都市をえらぶ</Furi>
+      </div>
       <div className={styles.choiceGrid}>
         {CITIES.map((city) => {
           const mark = city.id === pair.aId ? 'A' : city.id === pair.bId ? 'B' : ''
@@ -130,16 +139,18 @@ function CityChoices({
               }}
             >
               <span className={styles.choiceFlag}>{city.flag}</span>
-              <span className={styles.choiceName}>{city.nameJa}</span>
+              <span className={styles.choiceName}>
+                <Furi>{city.nameJa}</Furi>
+              </span>
               {mark && <span className={styles.choiceMark}>{mark}</span>}
             </button>
           )
         })}
       </div>
       <p className={styles.choiceHint}>
-        地球儀のピンを押しても えらべます。
+        <Furi>地球儀のピンを押しても えらべます。</Furi>
         <br />
-        もう一度おすと 外れます。
+        <Furi>もう一度おすと 外れます。</Furi>
       </p>
     </div>
   )
@@ -216,44 +227,64 @@ function Comparison({ a, b }: { a: City; b: City }) {
       <div className={styles.headline}>
         {headline.map((item) => (
           <div key={item.key} className={styles.headlineCell}>
-            <div className={styles.caption}>{item.key}</div>
-            <div className={styles.headlineValue}>{item.value}</div>
-            <div className={styles.headlineNote}>{item.note}</div>
+            <div className={styles.caption}>
+              <Furi>{item.key}</Furi>
+            </div>
+            <div className={styles.headlineValue}>
+              <Furi>{item.value}</Furi>
+            </div>
+            <div className={styles.headlineNote}>
+              <Furi>{item.note}</Furi>
+            </div>
           </div>
         ))}
       </div>
 
       <section className={styles.dayShift}>
-        <div className={styles.sectionTitle}>日付のずれ</div>
+        <div className={styles.sectionTitle}>
+          <Furi>日付のずれ</Furi>
+        </div>
         <p className={styles.dayShiftLead}>
-          {a.nameJa}が {formatLocalDate(a.tz, now)} のとき、{describeDayShift(shift, b.nameJa)}。
+          <Furi>{a.nameJa}</Furi>が <Furi>{formatLocalDate(a.tz, now)}</Furi> のとき、
+          <Furi>{describeDayShift(shift, b.nameJa)}</Furi>。
         </p>
         <p className={styles.dayShiftText}>
-          地球は西から東へ回っているので、東にある場所ほど先に朝がきます。
-          だから東へ進むほど時計は進み、ぐるっと一周すると 24 時間も進んでしまいます。
-          そうならないように、太平洋の上に「日付変更線」が引いてあります。
-          この線をまたぐと、時計はそのままで日付だけが 1 日ずれます。
-          {shift !== 0 &&
-            `${a.nameJa}と${b.nameJa}は この線をはさんだ反対がわにあるので、同じ時刻でも日付が違います。`}
+          <Furi>
+            地球は西から東へ回っているので、東にある場所ほど先に朝がきます。
+            だから東へ進むほど時計は進み、ぐるっと一周すると 24 時間も進んでしまいます。
+            そうならないように、太平洋の上に「日付変更線」が引いてあります。
+            この線をまたぐと、時計はそのままで日付だけが 1 日ずれます。
+          </Furi>
+          {shift !== 0 && (
+            <Furi>{`${a.nameJa}と${b.nameJa}は この線をはさんだ反対がわにあるので、同じ時刻でも日付が違います。`}</Furi>
+          )}
         </p>
       </section>
 
       <section className={styles.table}>
-        <div className={styles.sectionTitle}>くらべてみる</div>
+        <div className={styles.sectionTitle}>
+          <Furi>くらべてみる</Furi>
+        </div>
         <div className={styles.tableHead}>
           <span />
           <span className={styles.tableCityA}>
-            {a.flag} {a.nameJa}
+            {a.flag} <Furi>{a.nameJa}</Furi>
           </span>
           <span className={styles.tableCityB}>
-            {b.flag} {b.nameJa}
+            {b.flag} <Furi>{b.nameJa}</Furi>
           </span>
         </div>
         {rows.map((row) => (
           <div key={row.key} className={styles.tableRow}>
-            <span className={styles.tableKey}>{row.key}</span>
-            <span className={styles.tableValue}>{row.a}</span>
-            <span className={styles.tableValue}>{row.b}</span>
+            <span className={styles.tableKey}>
+              <Furi>{row.key}</Furi>
+            </span>
+            <span className={styles.tableValue}>
+              <Furi>{row.a}</Furi>
+            </span>
+            <span className={styles.tableValue}>
+              <Furi>{row.b}</Furi>
+            </span>
           </div>
         ))}
       </section>
@@ -296,7 +327,9 @@ function ComparePanel({ pair, onChooseCity, onClearSlot, onActivateSlot }: Props
         <Comparison a={a} b={b} />
       ) : (
         <>
-          <p className={styles.lead}>2つの都市をえらぶと、距離と時差のかんけいが出ます。</p>
+          <p className={styles.lead}>
+            <Furi>2つの都市をえらぶと、距離と時差のかんけいが出ます。</Furi>
+          </p>
           <CityChoices pair={pair} onChoose={onChooseCity} />
         </>
       )}
