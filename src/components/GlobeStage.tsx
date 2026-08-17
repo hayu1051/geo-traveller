@@ -41,10 +41,19 @@ type Props = {
   continent: Continent | null
   compareAId: string | null
   compareBId: string | null
+  /** 位置あてクイズの出題中。都市名を「？」に置きかえる */
+  hideNames: boolean
   onSelectCity: (id: string) => void
 }
 
-function GlobeStage({ selectedId, continent, compareAId, compareBId, onSelectCity }: Props) {
+function GlobeStage({
+  selectedId,
+  continent,
+  compareAId,
+  compareBId,
+  hideNames,
+  onSelectCity,
+}: Props) {
   const hostRef = useRef<HTMLDivElement>(null)
   const globeRef = useRef<Globe | null>(null)
   const [spin, setSpin] = useState(true)
@@ -89,10 +98,10 @@ function GlobeStage({ selectedId, continent, compareAId, compareBId, onSelectCit
       selectedId,
       compareAId,
       compareBId,
-      hideNames: false,
+      hideNames,
       continent,
     })
-  }, [selectedId, compareAId, compareBId, continent])
+  }, [selectedId, compareAId, compareBId, hideNames, continent])
 
   // 都市を選んだらそこへ回す
   useEffect(() => {

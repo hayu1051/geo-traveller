@@ -1,5 +1,10 @@
 import type { City } from '../../data/types.ts'
-import { formatHemisphere, formatPopulation } from '../../lib/format.ts'
+import {
+  formatHemisphere,
+  formatLatitude,
+  formatLongitude,
+  formatPopulation,
+} from '../../lib/format.ts'
 import { pick, sample, shuffle } from './random.ts'
 import { timeQuestion } from './timeQuestion.ts'
 import { CHOICE_COUNT, type Choice, type QuestionOptions, type Question } from './types.ts'
@@ -115,6 +120,28 @@ function flagQuestion(city: City, options: QuestionOptions): Question {
   }
 }
 
+/**
+ * 位置あて。ほかの3種類と違い、選択肢を作らない。
+ *
+ * 答えるのは地球儀のピンで、出題中は名前が「？」に置きかわっている。
+ * 手がかりは大陸だけなので、そこから位置を思い出してもらう。
+ */
+function locateQuestion(city: City): Question {
+  return {
+    kind: 'locate',
+    text: `${city.nameJa}（${city.country}）はどこでしょう？ 地球儀のピンをタップしてこたえてください。`,
+    hint: `この都市は ${city.cont} にあります。`,
+    choices: [],
+    answerId: city.id,
+    /*
+     * 解説では緯度と経度を出す。ピンを押して終わりにせず、
+     * 「その場所が地球のどこなのか」を数で結びつけてもらう。
+     */
+    explain: `${city.nameJa} の位置は ${formatLatitude(city.lat)}、${formatLongitude(city.lng)} です。`,
+    cityId: city.id,
+  }
+}
+
 /*
  * switch にしてあるのは、種類を増やしたときに気づくため。
  * case を足し忘れると「戻り値が Question にならない道がある」とコンパイラが止めてくれる。
@@ -129,5 +156,7 @@ export function createQuestion(options: QuestionOptions): Question {
       return flagQuestion(city, options)
     case 'time':
       return timeQuestion(city, options)
+    case 'locate':
+      return locateQuestion(city)
   }
 }

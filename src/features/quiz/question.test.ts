@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { CITIES } from '../../data/cities.ts'
 import { createQuestion } from './question.ts'
 import type { Rng } from './random.ts'
-import { QUIZ_KINDS, type QuestionOptions, type QuizKind } from './types.ts'
+import {
+  answersOnGlobe,
+  QUIZ_KINDS,
+  type QuestionOptions,
+  type QuizKind,
+} from './types.ts'
 
 /*
  * 出題は乱数を使うので、1回動かして通ったからといって安心できない。
@@ -37,45 +42,11 @@ function fixedRng(values: number[]): Rng {
   }
 }
 
+/** 選択肢から答える種類。位置あては地球儀のピンで答えるので入らない */
+const CHOICE_KINDS = QUIZ_KINDS.filter((kind) => !answersOnGlobe(kind))
+
 describe('createQuestion', () => {
   describe('どの種類でも成り立つこと', () => {
-    it('選択肢は必ず4つ', () => {
-      for (const kind of QUIZ_KINDS) {
-        for (let i = 0; i < RUNS; i += 1) {
-          expect(createQuestion(options(kind)).choices).toHaveLength(4)
-        }
-      }
-    })
-
-    it('選択肢の中に必ず答えがある', () => {
-      for (const kind of QUIZ_KINDS) {
-        for (let i = 0; i < RUNS; i += 1) {
-          const question = createQuestion(options(kind))
-          const ids = question.choices.map((choice) => choice.id)
-          expect(ids, kind).toContain(question.answerId)
-        }
-      }
-    })
-
-    it('同じラベルが2つ並ばない', () => {
-      // 国旗クイズはラベルが国名。アメリカ合衆国の都市が3件あるので重なりうる
-      for (const kind of QUIZ_KINDS) {
-        for (let i = 0; i < RUNS; i += 1) {
-          const labels = createQuestion(options(kind)).choices.map((choice) => choice.label)
-          expect(new Set(labels).size, `${kind}: ${labels.join(' / ')}`).toBe(labels.length)
-        }
-      }
-    })
-
-    it('同じ選択肢が2つ並ばない', () => {
-      for (const kind of QUIZ_KINDS) {
-        for (let i = 0; i < RUNS; i += 1) {
-          const ids = createQuestion(options(kind)).choices.map((choice) => choice.id)
-          expect(new Set(ids).size, kind).toBe(ids.length)
-        }
-      }
-    })
-
     it('問題文と解説が空にならない', () => {
       for (const kind of QUIZ_KINDS) {
         for (let i = 0; i < RUNS; i += 1) {
@@ -91,6 +62,45 @@ describe('createQuestion', () => {
         for (let i = 0; i < RUNS; i += 1) {
           const question = createQuestion(options(kind))
           expect(CITIES.some((city) => city.id === question.cityId), kind).toBe(true)
+        }
+      }
+    })
+  })
+
+  describe('選択肢から答える種類で成り立つこと', () => {
+    it('選択肢は必ず4つ', () => {
+      for (const kind of CHOICE_KINDS) {
+        for (let i = 0; i < RUNS; i += 1) {
+          expect(createQuestion(options(kind)).choices, kind).toHaveLength(4)
+        }
+      }
+    })
+
+    it('選択肢の中に必ず答えがある', () => {
+      for (const kind of CHOICE_KINDS) {
+        for (let i = 0; i < RUNS; i += 1) {
+          const question = createQuestion(options(kind))
+          const ids = question.choices.map((choice) => choice.id)
+          expect(ids, kind).toContain(question.answerId)
+        }
+      }
+    })
+
+    it('同じラベルが2つ並ばない', () => {
+      // 国旗クイズはラベルが国名。アメリカ合衆国の都市が3件あるので重なりうる
+      for (const kind of CHOICE_KINDS) {
+        for (let i = 0; i < RUNS; i += 1) {
+          const labels = createQuestion(options(kind)).choices.map((choice) => choice.label)
+          expect(new Set(labels).size, `${kind}: ${labels.join(' / ')}`).toBe(labels.length)
+        }
+      }
+    })
+
+    it('同じ選択肢が2つ並ばない', () => {
+      for (const kind of CHOICE_KINDS) {
+        for (let i = 0; i < RUNS; i += 1) {
+          const ids = createQuestion(options(kind)).choices.map((choice) => choice.id)
+          expect(new Set(ids).size, kind).toBe(ids.length)
         }
       }
     })
@@ -120,9 +130,9 @@ describe('createQuestion', () => {
       }
     })
 
-    it('都市を選ばせる種類では、答えがその都市の id になる', () => {
+    it('都市を答える種類では、答えがその都市の id になる', () => {
       // 時差計算だけは答えが時刻の文字列なので、ここには含めない
-      for (const kind of ['city', 'flag'] as const) {
+      for (const kind of ['city', 'flag', 'locate'] as const) {
         expect(createQuestion(options(kind, { cityId: 'madrid' })).answerId, kind).toBe('madrid')
       }
     })
@@ -238,6 +248,53 @@ describe('createQuestion', () => {
       expect(question.explain).toContain('🇦🇺')
       expect(question.explain).toContain('オーストラリア')
       expect(question.explain).toContain('シドニー')
+    })
+  })
+
+  describe('位置あて', () => {
+    it('選択肢を作らない', () => {
+      // 答えるのは地球儀のピン。画面に選択肢が出ると押すところが2か所になる
+      for (let i = 0; i < RUNS; i += 1) {
+        expect(createQuestion(options('locate')).choices).toEqual([])
+      }
+    })
+
+    it('答えはその都市の id', () => {
+      // ピンを押すと都市の id が渡ってくるので、そのまま照らし合わせられる形にする
+      expect(createQuestion(options('locate', { cityId: 'lima' })).answerId).toBe('lima')
+    })
+
+    it('問題文に都市名と国名を出す', () => {
+      const question = createQuestion(options('locate', { cityId: 'lima' }))
+      expect(question.text).toContain('リマ')
+      expect(question.text).toContain('ペルー')
+    })
+
+    it('ヒントは大陸だけ', () => {
+      /*
+       * 半球や人口まで出すと当てられてしまう。
+       * どのあたりを探せばよいかだけ伝えて、位置は思い出してもらう。
+       */
+      const question = createQuestion(options('locate', { cityId: 'lima' }))
+      expect(question.hint).toBe('この都市は 南アメリカ にあります。')
+    })
+
+    it('解説に緯度と経度を出す', () => {
+      const question = createQuestion(options('locate', { cityId: 'lima' }))
+      expect(question.explain).toContain('南緯')
+      expect(question.explain).toContain('西経')
+    })
+
+    it('国旗は持たない', () => {
+      expect(createQuestion(options('locate')).flag).toBeUndefined()
+    })
+
+    it('どの都市でも問題文と解説が作れる', () => {
+      for (const city of CITIES) {
+        const question = createQuestion(options('locate', { cityId: city.id }))
+        expect(question.text, city.nameJa).toContain(city.nameJa)
+        expect(question.explain, city.nameJa).toContain(city.nameJa)
+      }
     })
   })
 
