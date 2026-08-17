@@ -10,6 +10,7 @@
  */
 
 const MINUTES_PER_HOUR = 60
+const MINUTES_PER_DAY = 1440
 
 /** 時差の説明文。「日本より 13時間 遅れています」の形 */
 export function formatDiffText(minutes: number, baseLabel: string): string {
@@ -107,6 +108,31 @@ export function describeDayShift(shift: number, name: string): string {
   if (shift > 0) return `${name}は もう次の日です`
   if (shift < 0) return `${name}は まだ前の日です`
   return `${name}も 同じ日付です`
+}
+
+/** 何日ずれているかのことば。0 なら「同じ日の」 */
+function describeDayOffset(days: number): string {
+  if (days === 0) return '同じ日の'
+  if (days === 1) return '次の日の'
+  if (days === -1) return '前の日の'
+  return days > 0 ? `${String(days)}日あとの` : `${String(-days)}日まえの`
+}
+
+/**
+ * ある日の 0 時から数えた分数を、時計の読みに直す。「次の日の 07:00」の形。
+ *
+ * 1440 分を超えても負になってもよく、はみ出したぶんは日付のことばになる。
+ * 時差の計算は日をまたぐことが多いので、時刻だけを出すと
+ * その「7時」が同じ日なのか次の日なのか分からなくなってしまう。
+ */
+export function formatClockWithDay(minutes: number): string {
+  const days = Math.floor(minutes / MINUTES_PER_DAY)
+  // 引き算で出す。剰余だと負の分数のときに符号が付いてしまう
+  const rest = minutes - days * MINUTES_PER_DAY
+  const hour = Math.floor(rest / MINUTES_PER_HOUR)
+  const minute = rest % MINUTES_PER_HOUR
+
+  return `${describeDayOffset(days)} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
 }
 
 export type Phase = {
