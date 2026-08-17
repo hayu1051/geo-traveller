@@ -41,6 +41,13 @@ type Props = {
    * 出題中でなければ null を入れて、ピンを押しても何も起きないようにする。
    */
   pinAnswerRef: RefObject<((cityId: string) => void) | null>
+  /**
+   * 1問答えるたびに呼ぶ。streak は答えたあとの連続正解数。
+   *
+   * この画面が持っている数は「このかい」ぶんで、やめると消える。
+   * 消えない記録は App が持っているので、増えたことだけ伝える。
+   */
+  onAnswered: (kind: QuizKind, correct: boolean, streak: number) => void
 }
 
 type Result = {
@@ -72,7 +79,7 @@ function SoundIcon({ on }: { on: boolean }) {
   )
 }
 
-function QuizPanel({ onGlobeChange, pinAnswerRef }: Props) {
+function QuizPanel({ onGlobeChange, pinAnswerRef, onAnswered }: Props) {
   const [kind, setKind] = useState<QuizKind>('city')
   const [question, setQuestion] = useState<Question | null>(null)
   const [result, setResult] = useState<Result | null>(null)
@@ -110,18 +117,17 @@ function QuizPanel({ onGlobeChange, pinAnswerRef }: Props) {
     setResult({ choiceId, correct: ok })
     if (soundOn) playResultSound(ok)
 
-    setAsked((value) => value + 1)
-    if (ok) {
-      setCorrect((value) => value + 1)
-      setStreak((value) => {
-        const next = value + 1
-        setBest((current) => Math.max(current, next))
-        return next
-      })
-    } else {
-      setStreak(0)
-      setHistory((current) => recordWrong(current, question.kind, question.cityId))
-    }
+    // 答えるのは 1 レンダリングにつき 1 回だけ（result で止めている）なので、
+    // いま画面に出ている値から次の値を出してよい
+    const nextStreak = ok ? streak + 1 : 0
+    setAsked(asked + 1)
+    setCorrect(correct + (ok ? 1 : 0))
+    setStreak(nextStreak)
+    setBest(Math.max(best, nextStreak))
+    if (!ok) setHistory((current) => recordWrong(current, question.kind, question.cityId))
+
+    // 消えない記録の方へも 1 問ぶん伝える
+    onAnswered(question.kind, ok, nextStreak)
 
     /*
      * 答えたあとに正解の都市を見せる。位置と結びつけて覚えてもらう。

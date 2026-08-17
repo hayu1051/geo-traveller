@@ -14,6 +14,7 @@ import {
 import QuizPanel from './features/quiz/QuizPanel.tsx'
 import { IDLE_QUIZ_GLOBE, type QuizGlobeState } from './features/quiz/types.ts'
 import RecordPanel from './features/record/RecordPanel.tsx'
+import { useRecord } from './features/record/useRecord.ts'
 import type { TabId } from './features/tabs.ts'
 import styles from './App.module.css'
 
@@ -43,6 +44,19 @@ function App() {
    */
   const pinAnswerRef = useRef<((cityId: string) => void) | null>(null)
 
+  /** 消えない記録。localStorage との出し入れはこの中で起きる */
+  const { record, visitCity, answerQuestion, reset } = useRecord()
+
+  /*
+   * 都市を開く。選ぶ道すじが 3 つ（一覧・地球儀のピン・記録の見た都市）あるので、
+   * 「見た都市に加える」を書き忘れないよう 1 か所にまとめる。
+   */
+  function selectCity(id: string | null) {
+    setSelectedId(id)
+    // 閉じるときは null が来る。そのときは見た都市に触らない
+    if (id !== null) visitCity(id)
+  }
+
   /*
    * 地球儀のピンは 1 つしかないが、押したときの意味はタブで変わる。
    * 探索モードでは都市を開き、比較モードでは A / B に入れ、クイズでは解答になる。
@@ -51,7 +65,7 @@ function App() {
   function handlePinClick(id: string) {
     if (tab === 'quiz') pinAnswerRef.current?.(id)
     else if (tab === 'compare') setPair((prev) => choosePair(prev, id))
-    else setSelectedId(id)
+    else selectCity(id)
   }
 
   /*
@@ -74,7 +88,7 @@ function App() {
       <ExplorePanel
         selectedId={selectedId}
         continent={continent}
-        onSelectCity={setSelectedId}
+        onSelectCity={selectCity}
         onContinentChange={setContinent}
       />
     ),
@@ -92,8 +106,24 @@ function App() {
         }}
       />
     ),
-    quiz: <QuizPanel onGlobeChange={setQuizGlobe} pinAnswerRef={pinAnswerRef} />,
-    record: <RecordPanel />,
+    quiz: (
+      <QuizPanel
+        onGlobeChange={setQuizGlobe}
+        pinAnswerRef={pinAnswerRef}
+        onAnswered={answerQuestion}
+      />
+    ),
+    record: (
+      <RecordPanel
+        record={record}
+        onSelectCity={(id) => {
+          // 記録から都市を開いたら、見るところは探索モード
+          selectCity(id)
+          changeTab('explore')
+        }}
+        onReset={reset}
+      />
+    ),
   }
 
   /*

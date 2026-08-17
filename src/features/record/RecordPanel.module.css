@@ -1,0 +1,211 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ----- 上の4つの数 ----- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  /* 枠線を引く代わりに背景を透かして、セルの隙間を線に見せる */
+  background: var(--outline-variant);
+  border: 1px solid var(--outline-variant);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.stat {
+  padding: 14px 10px;
+  background: var(--surface);
+  text-align: center;
+}
+
+.statLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--on-surface-variant);
+}
+
+.statValue {
+  margin-top: 4px;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+  /* 数字の幅をそろえる。これが無いと増えるたびに横幅が揺れる */
+  font-variant-numeric: tabular-nums;
+  color: var(--primary-pressed);
+}
+
+/* ----- 見出し ----- */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-variant);
+}
+
+.empty {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--on-surface-variant);
+  text-wrap: pretty;
+}
+
+/* ----- 種類ごとの成績 ----- */
+
+.kinds {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.kindHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.kindName {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.kindScore {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--on-surface-variant);
+}
+
+.bar {
+  height: 8px;
+  border-radius: 100px;
+  background: var(--surface-variant);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 100px;
+  background: var(--primary);
+  transition: width 0.25s;
+}
+
+/* ----- 見た都市 ----- */
+
+.visited {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.visitedItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid var(--outline-variant);
+  border-radius: 100px;
+  background: var(--surface);
+  color: var(--on-surface);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.visitedItem:hover {
+  border-color: var(--primary);
+  background: var(--surface-container-high);
+}
+
+.visitedFlag {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.visitedName {
+  white-space: nowrap;
+}
+
+/* ----- リセット ----- */
+
+/*
+ * ふだんは目立たせない。押してほしいボタンではないので、
+ * 枠線だけの控えめな見た目にして、色は確認に進んでから出す。
+ */
+.reset {
+  align-self: flex-start;
+  padding: 9px 16px;
+  border: 1px solid var(--outline-variant);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.reset:hover {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.confirm {
+  padding: 14px 16px;
+  border: 1px solid var(--error);
+  border-radius: 12px;
+  background: var(--surface-container);
+}
+
+.confirmText {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.7;
+  color: var(--error);
+}
+
+.confirmActions {
+  display: flex;
+  gap: 8px;
+}
+
+.danger {
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 100px;
+  background: var(--error);
+  color: var(--on-error);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancel {
+  padding: 9px 18px;
+  border: 1px solid var(--outline);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--on-surface);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancel:hover {
+  background: var(--surface-container-high);
+}
