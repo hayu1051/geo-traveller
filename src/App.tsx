@@ -34,6 +34,14 @@ function App() {
   const [pair, setPair] = useState<Pair>(EMPTY_PAIR)
   /** クイズが地球儀にお願いしていること（名前を隠す／正解を見せる） */
   const [quizGlobe, setQuizGlobe] = useState<QuizGlobeState>(IDLE_QUIZ_GLOBE)
+  /*
+   * ふりがなを出すかどうか。小学生から使うので、はじめは出しておく。
+   *
+   * ここが持つのは true / false だけ。<rt> は最初から DOM にあり、
+   * data-furi を見た CSS が表示を切り替える。切り替えのたびに
+   * 文字列を作り直したり、DOM をたどって書きかえたりはしない。
+   */
+  const [furiOn, setFuriOn] = useState(true)
 
   /*
    * 位置あてクイズの解答を受け取る関数の置き場。
@@ -157,8 +165,15 @@ function App() {
         : { selectedId, continent, compareAId: null, compareBId: null, hideNames: false }
 
   return (
-    <div className={styles.app}>
-      <AppHeader tab={tab} onTabChange={changeTab} />
+    <div className={styles.app} data-furi={furiOn ? 'true' : 'false'}>
+      <AppHeader
+        tab={tab}
+        onTabChange={changeTab}
+        furiOn={furiOn}
+        onFuriToggle={() => {
+          setFuriOn((value) => !value)
+        }}
+      />
 
       <div className={styles.main}>
         <GlobeStage {...globeMarks} onSelectCity={handlePinClick} />
