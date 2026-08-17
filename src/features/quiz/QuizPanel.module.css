@@ -173,6 +173,39 @@
   vertical-align: 0.05em;
 }
 
+/* ----- 位置あて（選択肢のかわり） ----- */
+
+/*
+ * 選択肢と同じ場所に置く案内。
+ * 破線にしているのは、押せるボタンではなく「地球儀を見てね」という
+ * 案内であることを、読む前に形で伝えるため。
+ */
+.tapping,
+.tappedDone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.tapping {
+  border: 2px dashed var(--outline-variant);
+  color: var(--on-surface-variant);
+}
+
+/* 答えたあと。押した都市を出すので、案内ではなく結果の見た目にする */
+.tappedDone {
+  border: 2px solid var(--outline-variant);
+  background: var(--surface-container);
+  color: var(--on-surface);
+}
+
 /* ----- 選択肢 ----- */
 
 .choices {

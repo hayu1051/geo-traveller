@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { CITIES } from '../../data/cities.ts'
+import { useEffect, useState, type RefObject } from 'react'
+import { CITIES, findCity } from '../../data/cities.ts'
 import {
   EMPTY_HISTORY,
   markAsked,
@@ -10,7 +10,15 @@ import {
 import { createQuestion } from './question.ts'
 import styles from './QuizPanel.module.css'
 import { playResultSound } from './sound.ts'
-import { QUIZ_KIND_LABELS, QUIZ_KINDS, type Question, type QuizKind } from './types.ts'
+import {
+  answersOnGlobe,
+  IDLE_QUIZ_GLOBE,
+  QUIZ_KIND_LABELS,
+  QUIZ_KINDS,
+  type Question,
+  type QuizGlobeState,
+  type QuizKind,
+} from './types.ts'
 
 /*
  * クイズモード。出題 → 回答 → 正誤 → 次の問題 のループ。
@@ -22,8 +30,17 @@ import { QUIZ_KIND_LABELS, QUIZ_KINDS, type Question, type QuizKind } from './ty
  */
 
 type Props = {
-  /** 答え合わせのあと、地球儀をその都市へ回すために親へ伝える */
-  onFocusCity: (cityId: string | null) => void
+  /** ピンの名前を隠すか、どの都市を見せるかを地球儀へ伝える */
+  onGlobeChange: (state: QuizGlobeState) => void
+  /**
+   * 地球儀のピンが押されたときに呼ぶ関数の置き場。
+   *
+   * 位置あてクイズだけは、答えが画面の中ではなく地球儀から来る。
+   * 親から子へ props を渡すのとは逆向きなので、親に用意してもらった入れ物へ
+   * こちらから関数を置く。GlobeStage が onSelectCity でやっているのと同じ形。
+   * 出題中でなければ null を入れて、ピンを押しても何も起きないようにする。
+   */
+  pinAnswerRef: RefObject<((cityId: string) => void) | null>
 }
 
 type Result = {
@@ -55,7 +72,7 @@ function SoundIcon({ on }: { on: boolean }) {
   )
 }
 
-function QuizPanel({ onFocusCity }: Props) {
+function QuizPanel({ onGlobeChange, pinAnswerRef }: Props) {
   const [kind, setKind] = useState<QuizKind>('city')
   const [question, setQuestion] = useState<Question | null>(null)
   const [result, setResult] = useState<Result | null>(null)
@@ -81,7 +98,8 @@ function QuizPanel({ onFocusCity }: Props) {
     setHistory(markAsked(plan.history, created.cityId))
     setQuestion(created)
     setResult(null)
-    onFocusCity(null)
+    // 位置あてはここから名前を隠す。ほかの種類なら隠したままにしない
+    onGlobeChange({ hideNames: answersOnGlobe(created.kind), focusId: null })
   }
 
   function answer(choiceId: string) {
@@ -105,9 +123,27 @@ function QuizPanel({ onFocusCity }: Props) {
       setHistory((current) => recordWrong(current, question.kind, question.cityId))
     }
 
-    // 答えたあとに正解の都市を見せる。位置と結びつけて覚えてもらう
-    onFocusCity(question.cityId)
+    /*
+     * 答えたあとに正解の都市を見せる。位置と結びつけて覚えてもらう。
+     * 位置あてではここで名前も戻る。押した場所と正解を見比べられるようにするため。
+     */
+    onGlobeChange({ hideNames: false, focusId: question.cityId })
   }
+
+  /*
+   * 地球儀のピンで答える。位置あてを出題中のときだけ受けつける。
+   *
+   * 置き直しに依存の配列を付けていないのは、question と result が変わるたびに
+   * 中身の違う関数へ入れ替える必要があるため。タブを離れて消えるときは
+   * 後片づけで空にして、もう画面に無い関数がピンから呼ばれないようにする。
+   */
+  useEffect(() => {
+    const locating = question !== null && answersOnGlobe(question.kind) && result === null
+    pinAnswerRef.current = locating ? answer : null
+    return () => {
+      pinAnswerRef.current = null
+    }
+  })
 
   function changeKind(nextKind: QuizKind) {
     setKind(nextKind)
@@ -121,7 +157,7 @@ function QuizPanel({ onFocusCity }: Props) {
     setCorrect(0)
     setStreak(0)
     setBest(0)
-    onFocusCity(null)
+    onGlobeChange(IDLE_QUIZ_GLOBE)
   }
 
   return (
@@ -208,36 +244,48 @@ function QuizPanel({ onFocusCity }: Props) {
             )}
           </div>
 
-          <div className={styles.choices}>
-            {question.choices.map((choice) => {
-              const isAnswer = choice.id === question.answerId
-              const isPicked = result?.choiceId === choice.id
-              const state = !result
-                ? ''
-                : isAnswer
-                  ? styles.choiceCorrect
-                  : isPicked
-                    ? styles.choiceWrong
-                    : styles.choiceMuted
-              return (
-                <button
-                  key={choice.id}
-                  type="button"
-                  className={`${styles.choice} ${state ?? ''}`}
-                  disabled={result !== null}
-                  onClick={() => {
-                    answer(choice.id)
-                  }}
-                >
-                  {choice.label}
-                  {result && isAnswer && <span className={styles.mark}>正解</span>}
-                  {result && isPicked && !isAnswer && (
-                    <span className={styles.mark}>えらんだ答え</span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
+          {answersOnGlobe(question.kind) ? (
+            /*
+             * 位置あては選択肢が無い。ここを空のままにするとパネルが壊れて見えるので、
+             * 選択肢と同じ場所に、今なにをすればよいかを出しておく。
+             */
+            <div className={result ? styles.tappedDone : styles.tapping}>
+              {result === null
+                ? '地球儀の ？ のピンをタップしてこたえてね'
+                : `タップしたのは ${findCity(result.choiceId)?.nameJa ?? '？'} です`}
+            </div>
+          ) : (
+            <div className={styles.choices}>
+              {question.choices.map((choice) => {
+                const isAnswer = choice.id === question.answerId
+                const isPicked = result?.choiceId === choice.id
+                const state = !result
+                  ? ''
+                  : isAnswer
+                    ? styles.choiceCorrect
+                    : isPicked
+                      ? styles.choiceWrong
+                      : styles.choiceMuted
+                return (
+                  <button
+                    key={choice.id}
+                    type="button"
+                    className={`${styles.choice} ${state ?? ''}`}
+                    disabled={result !== null}
+                    onClick={() => {
+                      answer(choice.id)
+                    }}
+                  >
+                    {choice.label}
+                    {result && isAnswer && <span className={styles.mark}>正解</span>}
+                    {result && isPicked && !isAnswer && (
+                      <span className={styles.mark}>えらんだ答え</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          )}
 
           {result && (
             <div className={result.correct ? styles.feedbackOk : styles.feedbackNg}>
