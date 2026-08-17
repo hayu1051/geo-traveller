@@ -73,6 +73,8 @@ function QuizPanel({ onFocusCity }: Props) {
       cities: CITIES,
       cityId: plan.cityId,
       excludeCityId: history.lastCityId,
+      // 出すたびに今の時刻で作り直す。サマータイムが切り替わっても答えがずれない
+      date: new Date(),
       rng: Math.random,
     })
 

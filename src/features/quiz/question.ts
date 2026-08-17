@@ -1,31 +1,22 @@
 import type { City } from '../../data/types.ts'
 import { formatHemisphere, formatPopulation } from '../../lib/format.ts'
-import { pick, sample, shuffle, type Rng } from './random.ts'
-import type { Choice, Question, QuizKind } from './types.ts'
+import { pick, sample, shuffle } from './random.ts'
+import { timeQuestion } from './timeQuestion.ts'
+import { CHOICE_COUNT, type Choice, type QuestionOptions, type Question } from './types.ts'
 
 /*
  * 出題を作る。画面を持たない純粋関数。
  *
- * 都市データと乱数だけを受け取り、同じ入力からは同じ問題ができる。
+ * 都市データ・日付・乱数だけを受け取り、同じ入力からは同じ問題ができる。
  * 「選択肢に必ず答えが入っている」「同じラベルが2つ並ばない」といった規則を
  * 画面を開かずにテストで固定するため、ここに切り出してある。
  *
- * 難易度（hard）は今回入れていない。入れるときは QuestionOptions に足せば済み、
+ * 時差計算は計算そのものが長いので timeQuestion.ts へ分けてある。
+ * ここに置くのは、どの都市を題材にするかの決め方と、種類ごとの振り分け。
+ *
+ * 難易度（hard）はまだ入れていない。入れるときは QuestionOptions に足せば済み、
  * 呼び出し側の作りは変えなくてよい。
  */
-
-/** 選択肢の数 */
-const CHOICE_COUNT = 4
-
-export type QuestionOptions = {
-  kind: QuizKind
-  cities: City[]
-  /** この都市で作る。null なら選び直す。間違えた問題の再出題で使う */
-  cityId: string | null
-  /** 直前に出した都市。同じ問題が続かないよう候補から外す */
-  excludeCityId: string | null
-  rng: Rng
-}
 
 /**
  * 国名が同じ、または一方がもう一方を含むか。
@@ -124,7 +115,19 @@ function flagQuestion(city: City, options: QuestionOptions): Question {
   }
 }
 
+/*
+ * switch にしてあるのは、種類を増やしたときに気づくため。
+ * case を足し忘れると「戻り値が Question にならない道がある」とコンパイラが止めてくれる。
+ */
 export function createQuestion(options: QuestionOptions): Question {
   const city = chooseCity(options)
-  return options.kind === 'city' ? cityQuestion(city, options) : flagQuestion(city, options)
+
+  switch (options.kind) {
+    case 'city':
+      return cityQuestion(city, options)
+    case 'flag':
+      return flagQuestion(city, options)
+    case 'time':
+      return timeQuestion(city, options)
+  }
 }

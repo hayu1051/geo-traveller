@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   describeDayShift,
   describePhase,
+  formatClockWithDay,
   formatDiffShort,
   formatDiffText,
   formatDistance,
@@ -155,6 +156,37 @@ describe('describeDayShift', () => {
 
   it('ずれていなければ同じ日', () => {
     expect(describeDayShift(0, 'ロンドン')).toBe('ロンドンも 同じ日付です')
+  })
+})
+
+describe('formatClockWithDay', () => {
+  it('その日のうちに収まる時刻', () => {
+    expect(formatClockWithDay(0)).toBe('同じ日の 00:00')
+    expect(formatClockWithDay(9 * 60)).toBe('同じ日の 09:00')
+    expect(formatClockWithDay(23 * 60 + 59)).toBe('同じ日の 23:59')
+  })
+
+  it('24 時間を超えたら次の日', () => {
+    expect(formatClockWithDay(24 * 60)).toBe('次の日の 00:00')
+    expect(formatClockWithDay(31 * 60)).toBe('次の日の 07:00')
+  })
+
+  it('負の分数は前の日', () => {
+    expect(formatClockWithDay(-60)).toBe('前の日の 23:00')
+    expect(formatClockWithDay(-24 * 60)).toBe('前の日の 00:00')
+    expect(formatClockWithDay(-24 * 60 - 1)).toBe('2日まえの 23:59')
+  })
+
+  it('2 日以上ずれても数で言える', () => {
+    // 出発 18 時 + 飛行 15 時間 + 時差 +15 時間 で 48 時間ちょうどになる組がある
+    expect(formatClockWithDay(48 * 60)).toBe('2日あとの 00:00')
+    expect(formatClockWithDay(50 * 60 + 30)).toBe('2日あとの 02:30')
+  })
+
+  it('30 分きざみがそのまま出る', () => {
+    // ニューデリーは +5:30。時差をたすと分が 00 にならない
+    expect(formatClockWithDay(9 * 60 + 30)).toBe('同じ日の 09:30')
+    expect(formatClockWithDay(-30)).toBe('前の日の 23:30')
   })
 })
 

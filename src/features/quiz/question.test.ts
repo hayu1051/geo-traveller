@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { CITIES } from '../../data/cities.ts'
-import { createQuestion, type QuestionOptions } from './question.ts'
+import { createQuestion } from './question.ts'
 import type { Rng } from './random.ts'
-import { QUIZ_KINDS, type QuizKind } from './types.ts'
+import { QUIZ_KINDS, type QuestionOptions, type QuizKind } from './types.ts'
 
 /*
  * 出題は乱数を使うので、1回動かして通ったからといって安心できない。
@@ -12,12 +12,16 @@ import { QUIZ_KINDS, type QuizKind } from './types.ts'
 
 const RUNS = 300
 
+/** 夏の平日。ヨーロッパと北アメリカがサマータイム中の時期にあたる */
+const DATE = new Date('2026-08-17T12:00:00Z')
+
 function options(kind: QuizKind, extra: Partial<QuestionOptions> = {}): QuestionOptions {
   return {
     kind,
     cities: CITIES,
     cityId: null,
     excludeCityId: null,
+    date: DATE,
     rng: Math.random,
     ...extra,
   }
@@ -112,9 +116,14 @@ describe('createQuestion', () => {
   describe('再出題', () => {
     it('cityId を指定すると、その都市の問題になる', () => {
       for (const kind of QUIZ_KINDS) {
-        const question = createQuestion(options(kind, { cityId: 'madrid' }))
-        expect(question.cityId, kind).toBe('madrid')
-        expect(question.answerId, kind).toBe('madrid')
+        expect(createQuestion(options(kind, { cityId: 'madrid' })).cityId, kind).toBe('madrid')
+      }
+    })
+
+    it('都市を選ばせる種類では、答えがその都市の id になる', () => {
+      // 時差計算だけは答えが時刻の文字列なので、ここには含めない
+      for (const kind of ['city', 'flag'] as const) {
+        expect(createQuestion(options(kind, { cityId: 'madrid' })).answerId, kind).toBe('madrid')
       }
     })
 
