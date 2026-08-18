@@ -22,7 +22,17 @@ type Props = {
 
 function Furi({ children }: Props) {
   return (
-    <>
+    /*
+     * 全体を span 1 つで包む。ここを Fragment にしてはいけない。
+     *
+     * ふりがなを付けると、1 つの文が <ruby> と地の文に分かれる。
+     * 包まずに display: flex の中へ置くと、その断片ひとつひとつが
+     * 別々の項目として並べられてしまう。justify-content: space-between なら
+     * 「アメリカ」と「合衆国」が左右の端まで引き離される。
+     *
+     * span は行の中では何もしないので、包んでも文字の折り返しは変わらない。
+     */
+    <span>
       {splitFurigana(children).map((segment, index) =>
         segment.yomi === null ? (
           // 同じ文字列からは同じ並びしかできないので、位置を鍵にしてよい
@@ -34,7 +44,7 @@ function Furi({ children }: Props) {
           </ruby>
         ),
       )}
-    </>
+    </span>
   )
 }
 
