@@ -11,7 +11,7 @@
 }
 
 .caption {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   color: var(--on-surface-variant);
@@ -21,7 +21,7 @@
   padding: 3px 7px;
   background: var(--primary);
   color: var(--on-primary);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
 }

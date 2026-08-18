@@ -85,7 +85,7 @@
 }
 
 .caption {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   color: var(--on-surface-variant);
@@ -163,7 +163,7 @@
 }
 
 .factKey {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--on-surface-variant);
@@ -184,7 +184,7 @@
 
 .triviaTitle {
   margin-bottom: 6px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   color: var(--primary-pressed);

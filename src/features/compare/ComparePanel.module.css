@@ -6,7 +6,7 @@
 
 .sectionTitle {
   margin-bottom: 8px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   color: var(--primary-pressed);
@@ -63,14 +63,14 @@
   border-radius: 50%;
   background: var(--primary);
   color: var(--on-primary);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .slotBadge {
   flex: 1;
   min-width: 0;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--primary-pressed);
@@ -152,7 +152,7 @@
 }
 
 .caption {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--on-surface-variant);
@@ -170,7 +170,7 @@
 
 .headlineNote {
   margin-top: 3px;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.5;
   color: var(--on-surface-variant);
 }
@@ -228,7 +228,7 @@
 }
 
 .tableKey {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--on-surface-variant);
 }
@@ -290,12 +290,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  /* 中の文字を 12px へ上げたので、丸も一緒に広げる */
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--primary);
   color: var(--on-primary);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
 }
 
