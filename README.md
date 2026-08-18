@@ -4,7 +4,7 @@
 
 小学生〜中学生を対象に、UI とコンテンツはすべて日本語。漢字にはふりがな（ルビ）をワンタップで出し入れできます。地球儀には昼と夜の境界をリアルタイムに描画します。
 
-
+**公開先 → <https://hayu1051.github.io/geo-traveller/>**
 
 ## 機能
 
@@ -124,3 +124,11 @@ npm run test
 | `npm run preview` | ビルド結果をローカルで確認 |
 | `npm run test` | テストを実行（Vitest） |
 | `npm run lint` | ESLint を実行 |
+
+## デプロイ
+
+main に入ると GitHub Actions が動き、数分後に <https://hayu1051.github.io/geo-traveller/> が更新されます。手で公開する操作はありません。ワークフローは `.github/workflows/deploy.yml` です。
+
+公開の直前に `lint` と `test` と `build` を通します。どれかが落ちるとその回の公開は行われず、**前のバージョンが残ります**。壊れたものが表に出ないようにするためです。
+
+`vite.config.ts` の `base` は、この公開先のパス（`/geo-traveller/`）に合わせてあります。**リポジトリ名を変えるときは、ここも一緒に変えてください。** ずれるとビルド後の JS と CSS が見つからず、真っ白な画面になります。
