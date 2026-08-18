@@ -44,6 +44,20 @@ const PITCH_LIMIT = 1.45
 const DRAG_SENSITIVITY = 0.006
 const WHEEL_SENSITIVITY = 0.0018
 
+/*
+ * ピンチ 1px あたりのズーム量。
+ * 指を 200px 広げると 1.6 ぶん寄る。ズームの幅は 1.55〜6 の 4.45 しかないので、
+ * これより大きくすると一度のピンチで端まで行ってしまう。
+ */
+const PINCH_SENSITIVITY = 0.008
+
+/*
+ * キー 1 回あたりの動く量。
+ * 矢印は約 7 度で、押しっぱなしのリピートで地球儀 1 周が 2 秒ほどになる。
+ */
+const KEY_ROTATE = 0.12
+const KEY_ZOOM = 0.3
+
 /** 都市を選んだときに寄る距離。初期位置よりは近く、地図が読める程度 */
 const FLY_TO_ZOOM = 3.0
 
@@ -100,8 +114,24 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
   const canvas = renderer.domElement
   canvas.style.cursor = 'grab'
   canvas.style.display = 'block'
-  // これが無いとスマホでドラッグがページのスクロールに奪われる
+  /*
+   * これが無いとスマホでドラッグがページのスクロールに奪われる。
+   * none にすると 2 本指のピンチもブラウザに取られなくなるので、
+   * 画面ごと拡大されずに地球儀のズームとして受け取れる。
+   */
   canvas.style.touchAction = 'none'
+
+  /*
+   * キーボードでも回せるように、tab で止まる場所にする。
+   * canvas はもともと操作できる要素ではないので、何ができるかを自分で名乗る。
+   */
+  canvas.tabIndex = 0
+  canvas.setAttribute('role', 'application')
+  canvas.setAttribute(
+    'aria-label',
+    '地球儀。矢印キーで回して、+ と - で近づいたり遠ざかったりできます',
+  )
+
   host.appendChild(canvas)
 
   const scene = new THREE.Scene()
@@ -191,40 +221,127 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
 
   // ----- 操作 -----
 
-  let drag: { x: number; y: number } | null = null
+  /** 手で動かしたら自動回転はやめる。ボタンの表示も合わせる */
+  function stopSpin() {
+    if (!spin) return
+    spin = false
+    options.onSpinChange?.(false)
+  }
+
+  /*
+   * 触れている指。
+   *
+   * 1 本なら回転、2 本ならピンチでズームになるので、本数を数える必要がある。
+   * マウスも 1 本の指として同じ道を通る。
+   */
+  const pointers = new Map<number, { x: number; y: number }>()
+
+  /** 直前のピンチの指の間隔（px）。指が 2 本そろっていない間は null */
+  let pinchGap: number | null = null
+
+  /** 今そろっている 2 本の指の間隔。2 本ないときは null */
+  function currentGap(): number | null {
+    const [a, b] = [...pointers.values()]
+    if (!a || !b) return null
+    return Math.hypot(a.x - b.x, a.y - b.y)
+  }
 
   function onPointerDown(event: PointerEvent) {
-    drag = { x: event.clientX, y: event.clientY }
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY })
     canvas.setPointerCapture(event.pointerId)
     canvas.style.cursor = 'grabbing'
+    pinchGap = currentGap()
   }
 
   function onPointerMove(event: PointerEvent) {
-    if (!drag) return
+    const before = pointers.get(event.pointerId)
+    // 押していない指の通過。マウスを乗せているだけのときはここで抜ける
+    if (!before) return
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY })
 
-    // 手で回し始めたら、都市へ向かう動きは止めて操作を優先する
+    // 手で動かし始めたら、都市へ向かう動きは止めて操作を優先する
     target = null
+    stopSpin()
 
-    view.yaw += (event.clientX - drag.x) * DRAG_SENSITIVITY
-    view.pitch += (event.clientY - drag.y) * DRAG_SENSITIVITY
-    view.pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, view.pitch))
-    drag = { x: event.clientX, y: event.clientY }
-
-    // 手で回している間は自動回転を止める
-    if (spin) {
-      spin = false
-      options.onSpinChange?.(false)
+    /*
+     * 指が 2 本あるときはズームだけにして、回転は混ぜない。
+     * 両方いっぺんに効かせると、寄せたつもりが地球儀ごと傾いてしまう。
+     */
+    const gap = currentGap()
+    if (gap !== null) {
+      if (pinchGap !== null) zoomBy((pinchGap - gap) * PINCH_SENSITIVITY)
+      pinchGap = gap
+      return
     }
+
+    view.yaw += (event.clientX - before.x) * DRAG_SENSITIVITY
+    view.pitch += (event.clientY - before.y) * DRAG_SENSITIVITY
+    view.pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, view.pitch))
   }
 
-  function onPointerUp() {
-    drag = null
-    canvas.style.cursor = 'grab'
+  function onPointerUp(event: PointerEvent) {
+    pointers.delete(event.pointerId)
+    /*
+     * 2 本から 1 本になった直後は、残った指の位置が古いままのことがある。
+     * その差をそのまま回転に使うと画面が飛ぶので、間隔を捨てて測り直させる。
+     */
+    pinchGap = null
+    if (pointers.size === 0) canvas.style.cursor = 'grab'
   }
 
   function onWheel(event: WheelEvent) {
     event.preventDefault()
     zoomBy(event.deltaY * WHEEL_SENSITIVITY)
+  }
+
+  /*
+   * キーボードでの操作。
+   *
+   * 向きはドラッグと同じにしてある。→ を押すと、指で右へ引いたときと同じ向きに回る。
+   * 「地球儀をつかんで動かす」の感覚をキーでもそのまま使えるようにするため。
+   */
+  function onKeyDown(event: KeyboardEvent) {
+    let yaw = 0
+    let pitch = 0
+    let zoom = 0
+
+    switch (event.key) {
+      case 'ArrowLeft':
+        yaw = -KEY_ROTATE
+        break
+      case 'ArrowRight':
+        yaw = KEY_ROTATE
+        break
+      case 'ArrowUp':
+        pitch = -KEY_ROTATE
+        break
+      case 'ArrowDown':
+        pitch = KEY_ROTATE
+        break
+      // JIS 配列の + は Shift + ; だが、event.key には '+' として届く
+      case '+':
+      case '=':
+        zoom = -KEY_ZOOM
+        break
+      case '-':
+        zoom = KEY_ZOOM
+        break
+      default:
+        return
+    }
+
+    // 矢印キーはふつうページを送る。地球儀が受け取ったぶんは渡さない
+    event.preventDefault()
+
+    if (zoom !== 0) {
+      zoomBy(zoom)
+      return
+    }
+
+    target = null
+    stopSpin()
+    view.yaw += yaw
+    view.pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, view.pitch + pitch))
   }
 
   function zoomBy(delta: number) {
@@ -269,6 +386,7 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
   canvas.addEventListener('pointerup', onPointerUp)
   canvas.addEventListener('pointercancel', onPointerUp)
   canvas.addEventListener('wheel', onWheel, { passive: false })
+  canvas.addEventListener('keydown', onKeyDown)
 
   // ----- 大きさの追従 -----
 
@@ -361,6 +479,7 @@ export function createGlobe(host: HTMLElement, options: GlobeOptions = {}): Glob
       canvas.removeEventListener('pointerup', onPointerUp)
       canvas.removeEventListener('pointercancel', onPointerUp)
       canvas.removeEventListener('wheel', onWheel)
+      canvas.removeEventListener('keydown', onKeyDown)
       geometry.dispose()
       material.dispose()
       texture.dispose()

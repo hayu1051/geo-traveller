@@ -33,6 +33,25 @@
   filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.35));
 }
 
+/*
+ * 指で押す端末では、当たり判定だけ広げる。
+ *
+ * ピンの絵は 22×30px しかなく、指の腹より小さい。
+ * 透明な ::after を重ねて 44×44px にすると、見た目はそのままで押しやすくなる。
+ * ヨーロッパのように都市が密なところでは、これが無いと隣を開いてしまう。
+ */
+@media (pointer: coarse) {
+  .pin::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+}
+
 .pin svg {
   display: block;
   width: 100%;

@@ -23,6 +23,21 @@
   color: var(--on-surface-variant);
 }
 
+/* ホイールもホバーも無い端末では、指での言いかたに差し替える */
+.hintTouch {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .hintMouse {
+    display: none;
+  }
+
+  .hintTouch {
+    display: inline;
+  }
+}
+
 .items {
   display: flex;
   flex-wrap: wrap;
@@ -39,6 +54,24 @@
   font-size: 12px;
   font-weight: 500;
   color: var(--on-surface);
+}
+
+/*
+ * スマホでは色の説明をしまう。
+ *
+ * 地球儀そのものが 240px しかないところに凡例を重ねると、
+ * 説明が地球を隠してしまって本末転倒になる。
+ * 残す 1 行は使いかたの方。色は見れば分かるが、
+ * 触りかたは書いていないと分からない。
+ */
+@media (max-width: 599px) {
+  .items {
+    display: none;
+  }
+
+  .hint {
+    margin: 0;
+  }
 }
 
 .swatch {

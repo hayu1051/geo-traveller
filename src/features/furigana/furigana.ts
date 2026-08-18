@@ -24,6 +24,11 @@
 const FURIGANA: readonly (readonly [string, string])[] = [
   // アプリと画面の名前
   ['地球儀', 'ちきゅうぎ'],
+  ['画面', 'がめん'],
+  ['利用', 'りよう'],
+  ['推奨', 'すいしょう'],
+  ['表示', 'ひょうじ'],
+  ['幅', 'はば'],
   ['探索', 'たんさく'],
   ['比較', 'ひかく'],
   ['記録', 'きろく'],
@@ -116,6 +121,7 @@ const FURIGANA: readonly (readonly [string, string])[] = [
   ['時間', 'じかん'],
   ['深夜', 'しんや'],
   ['回転', 'かいてん'],
+  ['指', 'ゆび'],
   ['停止', 'ていし'],
   ['拡大', 'かくだい'],
   ['縮小', 'しゅくしょう'],
@@ -396,6 +402,49 @@ export type Segment = {
   yomi: string | null
 }
 
+/** 漢字のかたまりと、それ以外のかたまりに切る */
+const KANJI_RUN = /[一-鿿]+|[^一-鿿]+/g
+
+/**
+ * 見出し語の読みを、漢字のかたまりごとに割りつける。
+ *
+ * 「同じ日の」に「おなじひの」をまるごと乗せると、はじめから読める
+ * 「じ」「の」の上にまでふりがなが乗る。読めるものに読みが付いていると、
+ * どれを読めばよいのか分からなくなるので、漢字の上にだけ乗せたい。
+ *
+ * 送りがなを手がかりにする。「同じ日の」は 漢字・じ・漢字・の の並びなので、
+ * /^(.+?)じ(.+?)の$/ を「おなじひの」に当てると「おな」「ひ」が取れる。
+ *
+ *   同じ日の / おなじひの → 同(おな) じ 日(ひ) の
+ *   分かれ   / わかれ     → 分(わ) かれ
+ *   お金     / おかね     → お 金(かね)
+ *
+ * 送りがなが読みの中に出てこない語（当て字など）は分けようがないので、
+ * これまでどおり全体に乗せる。
+ */
+function alignReading(word: string, yomi: string): Segment[] {
+  const parts = word.match(KANJI_RUN)
+  // 漢字だけ、またはかなだけの語。分ける必要が無い
+  if (!parts || parts.length === 1) return [{ text: word, yomi }]
+
+  const source = parts.map((part) => (KANJI.test(part) ? '(.+?)' : part)).join('')
+  const matched = new RegExp(`^${source}$`).exec(yomi)
+  if (!matched) return [{ text: word, yomi }]
+
+  let group = 0
+  return parts.map((part) =>
+    KANJI.test(part) ? { text: part, yomi: matched[++group] ?? yomi } : { text: part, yomi: null },
+  )
+}
+
+/*
+ * 割りつけた結果。表は動かないので、読み込みのときに一度だけ作る。
+ * 画面を描くたびに正規表現を組み立て直さないための置き場。
+ */
+const ALIGNED = new Map(
+  [...READINGS].map(([word, yomi]) => [word, alignReading(word, yomi)] as const),
+)
+
 /*
  * その位置から見出し語が始まるかを調べるための正規表現。
  * y（sticky）を付けると lastIndex の位置ぴったりからしか探さない。
@@ -457,7 +506,8 @@ export function splitFurigana(text: string): Segment[] {
     if (word.length === 1 && skipsSingle(text, start, last)) continue
 
     if (start > last) segments.push({ text: text.slice(last, start), yomi: null })
-    segments.push({ text: word, yomi: READINGS.get(word) ?? null })
+    // 送りがなの入った語は、漢字のところだけに分かれて返ってくる
+    segments.push(...(ALIGNED.get(word) ?? [{ text: word, yomi: null }]))
     last = start + word.length
   }
 
