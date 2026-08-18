@@ -1,0 +1,61 @@
+# main に入った内容を GitHub Pages へ公開する。
+#
+# Settings → Pages → Source が「GitHub Actions」になっていないと、
+# configure-pages のところで止まる。ブランチから配信する設定とは併用できない。
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  # 失敗したときや、コードを変えずに出し直したいときのために手動でも回せるようにする
+  workflow_dispatch:
+
+# Pages への公開に要る最小限。書き込みはページと OIDC トークンだけに絞る
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 公開は 1 つずつ。走っているものは止めない。
+# 途中で止めると、新しい方が失敗したときに古い方も消えた状態で残る
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Vite 8 が要求するのは ^20.19.0 || >=22.12.0
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # 公開の直前にもう一度確かめる。
+      # main に入るのはレビュー済みのコードだが、ここで落ちれば公開されないので、
+      # 壊れたものが世に出る経路を 1 つ減らせる
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
