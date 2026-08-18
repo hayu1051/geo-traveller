@@ -155,3 +155,64 @@
   height: 16px;
   background: var(--on-primary);
 }
+
+/*
+ * せまい画面のヘッダー。
+ *
+ * ブランド名 + タブ4つ + ふりがなで、そのままだと 660px ほど要る。
+ * タブレットは詰めれば 1 行に入るが、スマホはどう詰めても入らない。
+ */
+
+/* タブレット。タブを詰めて 1 行に収める */
+@media (max-width: 1023px) {
+  .tab {
+    min-height: 56px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+}
+
+/*
+ * スマホ。2 行に分ける。
+ *
+ * 1 行に押し込むなら「ふりがな」のラベルを消すしかないが、
+ * それを頼りにしている子がいちばんこのアプリの相手なので、
+ * 40px の高さを払ってラベルを残す。
+ *
+ * 並べ直しは order でやる。DOM の順は変えないので、
+ * tab キーで進む順（ロゴ → タブ → ふりがな）は画面の幅で変わらない。
+ */
+@media (max-width: 599px) {
+  .header {
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    order: 1;
+    min-height: 46px;
+    /* 右の区切り線は縦に並んでいたから意味があった。1 行目の右端では邪魔になる */
+    border-right: 0;
+  }
+
+  .spacer {
+    order: 2;
+  }
+
+  .furi {
+    order: 3;
+  }
+
+  .nav {
+    order: 4;
+    /* これで 2 行目へ送られる。改行のためだけの 100% */
+    width: 100%;
+    border-top: 1px solid var(--outline-variant);
+  }
+
+  .tab {
+    min-height: 48px;
+    /* 4 つで画面の幅を分け合う。指で押せる幅を等しく配る */
+    flex: 1;
+    padding: 0 4px;
+  }
+}

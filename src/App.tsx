@@ -27,6 +27,21 @@ import styles from './App.module.css'
  * タブを増やしてパネルを書き忘れるとコンパイルエラーになる。
  */
 
+/**
+ * せまい画面で地球儀にどれだけ場所を渡すか。
+ *
+ * 実際に何 % にするかは CSS が持つ。ここが決めるのは「今このタブは
+ * 地球儀をどれくらい要るか」だけで、幅は見ない。幅を JS で測ると、
+ * 端末を回した瞬間に state と本当の幅がずれて、1 フレーム前の見た目が残る。
+ */
+function globeSpace(tab: TabId, quiz: QuizGlobeState): 'hidden' | 'large' | 'shown' {
+  // 記録モードは地球儀を一度も使わない
+  if (tab === 'record') return 'hidden'
+  // 位置あての出題中。答えるのは地球儀の上なので、パネルより地球儀に場所が要る
+  if (tab === 'quiz' && quiz.hideNames) return 'large'
+  return 'shown'
+}
+
 function App() {
   const [tab, setTab] = useState<TabId>('explore')
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -165,7 +180,11 @@ function App() {
         : { selectedId, continent, compareAId: null, compareBId: null, hideNames: false }
 
   return (
-    <div className={styles.app} data-furi={furiOn ? 'true' : 'false'}>
+    <div
+      className={styles.app}
+      data-furi={furiOn ? 'true' : 'false'}
+      data-globe={globeSpace(tab, quizGlobe)}
+    >
       <AppHeader
         tab={tab}
         onTabChange={changeTab}
