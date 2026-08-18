@@ -20,8 +20,21 @@ const SWATCHES: { color: string; label: string }[] = [
 function GlobeLegend() {
   return (
     <div className={styles.legend}>
+      {/*
+        使いかたは端末で変わる。指で触る端末にはホイールが無いので、
+        ホイールと書いてあると拡大する方法が一生見つからない。
+
+        両方を書いておいて、CSS がその端末に合う方だけを出す。
+        JS で 1 つに決めてしまうと、マウスと指の両方が使えるノート PC で
+        どちらかが嘘になる。
+      */}
       <p className={styles.hint}>
-        <Furi>ドラッグで回転</Furi> / <Furi>ホイールで拡大</Furi>
+        <span className={styles.hintMouse}>
+          <Furi>ドラッグで回転</Furi> / <Furi>ホイールで拡大</Furi>
+        </span>
+        <span className={styles.hintTouch}>
+          <Furi>指で回転</Furi> / <Furi>つまんで拡大</Furi>
+        </span>
       </p>
 
       <ul className={styles.items}>
