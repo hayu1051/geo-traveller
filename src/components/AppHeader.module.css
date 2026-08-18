@@ -1,0 +1,218 @@
+.header {
+  display: flex;
+  align-items: stretch;
+  flex: none;
+  background: var(--surface-container);
+  border-bottom: 1px solid var(--outline-variant);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+  /* 地球儀の上に重なるパネル類より前に出す */
+  position: relative;
+  z-index: 10;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  padding: 0 14px;
+  border-right: 1px solid var(--outline-variant);
+}
+
+.brandMark {
+  display: flex;
+  flex: none;
+}
+
+.brandName {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.tab {
+  position: relative;
+  flex: none;
+  min-height: 64px;
+  padding: 0 20px;
+  border: 0;
+  background: transparent;
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tab:hover {
+  background: color-mix(in srgb, var(--on-surface) 7%, transparent);
+}
+
+/* 選択中のタブを示す下線。文字色ではなくこの線で示すのが原案の作り */
+.indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--primary);
+}
+
+/* ヘッダー右端。#4 の時計が入る予定の余白 */
+.spacer {
+  flex: 1;
+  min-width: 8px;
+}
+
+/*
+ * ふりがなの出し入れ。
+ *
+ * align-self が要る。ヘッダーは align-items: stretch なので、
+ * 指定しないとタブと同じ 64px まで縦に引き伸ばされて、
+ * ボタンなのにヘッダーの帯そのものに見えてしまう。
+ */
+.furi {
+  flex: none;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-right: 14px;
+  padding: 6px 8px 6px 12px;
+  border: 0;
+  border-radius: 100px;
+  background: transparent;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+}
+
+.furi:hover {
+  background: color-mix(in srgb, var(--on-surface) 7%, transparent);
+}
+
+.furi[aria-checked='true'] {
+  color: var(--on-surface);
+}
+
+.furiLabel {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/*
+ * スイッチ。Material 3 の作りに合わせて、切のときは枠線＋小さいつまみ、
+ * 入のときは塗りつぶし＋大きいつまみにする。
+ * 色だけで示すと、色が見分けにくい人に状態が伝わらない。大きさでも変える。
+ */
+.furiTrack {
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  width: 40px;
+  height: 24px;
+  border: 2px solid var(--outline);
+  border-radius: 100px;
+  background: var(--surface-variant);
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.furi[aria-checked='true'] .furiTrack {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.furiKnob {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--outline);
+  transform: translateY(-50%);
+  transition:
+    left 0.15s,
+    width 0.15s,
+    height 0.15s,
+    background 0.15s;
+}
+
+.furi[aria-checked='true'] .furiKnob {
+  left: 20px;
+  width: 16px;
+  height: 16px;
+  background: var(--on-primary);
+}
+
+/*
+ * せまい画面のヘッダー。
+ *
+ * ブランド名 + タブ4つ + ふりがなで、そのままだと 660px ほど要る。
+ * タブレットは詰めれば 1 行に入るが、スマホはどう詰めても入らない。
+ */
+
+/* タブレット。タブを詰めて 1 行に収める */
+@media (max-width: 1023px) {
+  .tab {
+    min-height: 56px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+}
+
+/*
+ * スマホ。2 行に分ける。
+ *
+ * 1 行に押し込むなら「ふりがな」のラベルを消すしかないが、
+ * それを頼りにしている子がいちばんこのアプリの相手なので、
+ * 40px の高さを払ってラベルを残す。
+ *
+ * 並べ直しは order でやる。DOM の順は変えないので、
+ * tab キーで進む順（ロゴ → タブ → ふりがな）は画面の幅で変わらない。
+ */
+@media (max-width: 599px) {
+  .header {
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    order: 1;
+    min-height: 46px;
+    /* 右の区切り線は縦に並んでいたから意味があった。1 行目の右端では邪魔になる */
+    border-right: 0;
+  }
+
+  .spacer {
+    order: 2;
+  }
+
+  .furi {
+    order: 3;
+  }
+
+  .nav {
+    order: 4;
+    /* これで 2 行目へ送られる。改行のためだけの 100% */
+    width: 100%;
+    border-top: 1px solid var(--outline-variant);
+  }
+
+  .tab {
+    min-height: 48px;
+    /* 4 つで画面の幅を分け合う。指で押せる幅を等しく配る */
+    flex: 1;
+    padding: 0 4px;
+  }
+}

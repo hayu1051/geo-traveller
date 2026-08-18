@@ -1,0 +1,347 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ----- 種類の切り替えと音 ----- */
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kinds {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kind {
+  padding: 7px 14px;
+  border: 1px solid var(--outline);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--on-surface);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.kind:hover {
+  background: var(--surface-container-high);
+}
+
+.kindActive {
+  border-color: transparent;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font-weight: 700;
+}
+
+/*
+ * アイコンだけのボタン。
+ * 枠が無いと絵が浮いているだけに見えて、押せることが伝わらない。
+ * 種類のチップ（--outline）より薄い線にして、主役ではないことを見た目で示す。
+ */
+.sound {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--outline-variant);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+}
+
+.sound:hover {
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+}
+
+.sound:hover {
+  background: var(--surface-container-high);
+}
+
+/* ----- 始める前 ----- */
+
+.start {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 24px 0;
+}
+
+.startText {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--on-surface-variant);
+}
+
+/* ----- 成績 ----- */
+
+.scores {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  /* 枠線を引く代わりに背景を透かして、セルの隙間を線に見せる */
+  background: var(--outline-variant);
+  border-top: 1px solid var(--outline-variant);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.score {
+  padding: 10px 6px;
+  background: var(--surface);
+  text-align: center;
+}
+
+.scoreLabel {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--on-surface-variant);
+}
+
+.scoreValue {
+  margin-top: 2px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+  /* 数字の幅をそろえる。これが無いと増えるたびに横幅が揺れる */
+  font-variant-numeric: tabular-nums;
+  color: var(--primary-pressed);
+}
+
+/* ----- 問題 ----- */
+
+.question {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px;
+  border-radius: 14px;
+  background: var(--surface-container);
+}
+
+.flag {
+  font-size: 72px;
+  line-height: 1;
+}
+
+.text {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.8;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+/* おまけの手がかり。問題文より弱く見せて、読む順番が分かるようにする */
+.hint {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--on-surface-variant);
+  text-wrap: pretty;
+}
+
+.hintLabel {
+  margin-right: 8px;
+  padding: 2px 7px;
+  border-radius: 100px;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  /* 文中に置くので、行の高さを本文に合わせる */
+  vertical-align: 0.05em;
+}
+
+/* ----- 位置あて（選択肢のかわり） ----- */
+
+/*
+ * 選択肢と同じ場所に置く案内。
+ * 破線にしているのは、押せるボタンではなく「地球儀を見てね」という
+ * 案内であることを、読む前に形で伝えるため。
+ */
+.tapping,
+.tappedDone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.tapping {
+  border: 2px dashed var(--outline-variant);
+  color: var(--on-surface-variant);
+}
+
+/* 答えたあと。押した都市を出すので、案内ではなく結果の見た目にする */
+.tappedDone {
+  border: 2px solid var(--outline-variant);
+  background: var(--surface-container);
+  color: var(--on-surface);
+}
+
+/* ----- 選択肢 ----- */
+
+.choices {
+  display: grid;
+  gap: 8px;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 52px;
+  padding: 12px 16px;
+  border: 2px solid var(--outline-variant);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--on-surface);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.choice:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: var(--surface-container-high);
+}
+
+.choice:disabled {
+  cursor: default;
+}
+
+/* 正解。答え合わせのあと、選ばなかった場合でも必ず色を付けて示す */
+.choiceCorrect {
+  border-color: var(--primary);
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+/* 選んでしまった不正解 */
+.choiceWrong {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+/* 触れなかった残りの選択肢 */
+.choiceMuted {
+  opacity: 0.45;
+}
+
+.mark {
+  flex: none;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* ----- 正誤と解説 ----- */
+
+.feedbackOk,
+.feedbackNg {
+  padding: 16px;
+  border-radius: 12px;
+  border-left: 4px solid;
+}
+
+.feedbackOk {
+  border-color: var(--primary);
+  background: var(--primary-container);
+}
+
+.feedbackNg {
+  border-color: var(--error);
+  background: var(--surface-container);
+}
+
+.verdict {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.feedbackNg .verdict {
+  color: var(--error);
+}
+
+.explain {
+  margin: 6px 0 0;
+  font-size: 15px;
+  line-height: 1.8;
+  text-wrap: pretty;
+}
+
+/* ----- 次へ ----- */
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.primary {
+  flex: 1;
+  min-height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 100px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.primary:disabled {
+  background: var(--surface-variant);
+  color: var(--on-surface-variant);
+  cursor: default;
+}
+
+.quit {
+  flex: none;
+  padding: 10px 14px;
+  border: 1px solid var(--outline-variant);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.quit:hover {
+  background: var(--surface-container-high);
+}

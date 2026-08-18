@@ -1,0 +1,65 @@
+.app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+/* ヘッダーの下。地球儀とパネルを横に並べる */
+.main {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  position: relative;
+}
+
+/*
+ * パネル。原案の side / bottom / full にあたる 3 つの置きかたを、
+ * 幅のしきい値だけで切り替える。JS で今どれかを判定してはいけない。
+ * 端末を回した瞬間に state と実際の幅がずれて、1 フレーム前の見た目が残る。
+ *
+ * side … 1024px 以上。右に置いて幅を決め打つ
+ */
+.panel {
+  width: 420px;
+  flex: none;
+  overflow: auto;
+  /*
+   * 下まで読んだあと指を動かし続けても、外側へスクロールを渡さない。
+   * 渡すと、パネルを送っていたつもりがページごと動く。
+   */
+  overscroll-behavior: contain;
+  background: var(--surface);
+  border-left: 1px solid var(--outline-variant);
+  padding: 28px 22px;
+}
+
+/*
+ * bottom … タブレットの縦向き。地球儀の下に敷く。
+ *
+ * この幅で右に 420px を残すと、地球儀に 400px 弱しか渡らない。
+ * 縦は余っているので、横に分けず縦に積む。
+ * 地球儀の高さは GlobeStage 側が持ち、パネルはその残りをもらう。
+ */
+@media (max-width: 1023px) {
+  .main {
+    flex-direction: column;
+  }
+
+  .panel {
+    width: auto;
+    flex: 1;
+    min-height: 0;
+    border-left: 0;
+    border-top: 1px solid var(--outline-variant);
+    padding: 20px 18px;
+  }
+}
+
+/* full … スマホ。余白を削って、読むところに幅を回す */
+@media (max-width: 599px) {
+  .panel {
+    padding: 16px 14px;
+  }
+}

@@ -1,0 +1,102 @@
+/*
+ * 地球儀の左下に出す説明。
+ * canvas の上に浮くので、操作の邪魔をしないよう pointer-events は切る。
+ */
+.legend {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  /* right を指定しないので中身の幅に縮む。上限だけ決めてズームボタンを避ける */
+  max-width: calc(100% - 104px);
+  z-index: 5;
+  padding: 10px 12px;
+  border-radius: 12px;
+  /* 地球儀が下に来ても読めるように、うっすら地を敷く */
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  pointer-events: none;
+}
+
+.hint {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+}
+
+/* ホイールもホバーも無い端末では、指での言いかたに差し替える */
+.hintTouch {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .hintMouse {
+    display: none;
+  }
+
+  .hintTouch {
+    display: inline;
+  }
+}
+
+.items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--on-surface);
+}
+
+/*
+ * スマホでは色の説明をしまう。
+ *
+ * 地球儀そのものが 240px しかないところに凡例を重ねると、
+ * 説明が地球を隠してしまって本末転倒になる。
+ * 残す 1 行は使いかたの方。色は見れば分かるが、
+ * 触りかたは書いていないと分からない。
+ */
+@media (max-width: 599px) {
+  .items {
+    display: none;
+  }
+
+  .hint {
+    margin: 0;
+  }
+}
+
+.swatch {
+  width: 20px;
+  height: 10px;
+  border-radius: 2px;
+  /* 昼の海のような淡い色が背景に溶けないよう、細い輪郭を付ける */
+  outline: 1px solid color-mix(in srgb, var(--on-surface) 20%, transparent);
+  outline-offset: -1px;
+}
+
+.pinIcon {
+  display: block;
+  width: 11px;
+  height: 15px;
+}
+
+.pinIcon path {
+  fill: var(--on-surface);
+  stroke: var(--surface);
+  stroke-width: 1.5;
+}
+
+.pinIcon circle {
+  fill: var(--error);
+  stroke: var(--surface);
+  stroke-width: 1;
+}

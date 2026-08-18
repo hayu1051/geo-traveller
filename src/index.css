@@ -1,111 +1,118 @@
+/*
+ * Material 3 のカラーロールに沿ったトークン。値はデザイン原案（Geo Traveller.dc.html）で
+ * 実際に使われている色をそのまま拾ったもの。原案は hex 直書きなので、ここで役割名を与えている。
+ *
+ * 地球儀の昼夜パレット（海・陸・海岸線など）はここには置かない。
+ * canvas へ直接描く色で CSS からは参照しないため、src/globe/ 側で持つ。
+ */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* 主役の紫。ボタン・選択中のピン・昼夜の境界線 */
+  --primary: #6750a4;
+  --primary-hover: #7965af;
+  --primary-pressed: #4f378b;
+  --on-primary: #ffffff;
+  --primary-container: #eaddff;
+  --on-primary-container: #1d1b20;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* 背景。surface が地の色で、container ほど手前に見える */
+  --surface: #fef7ff;
+  --surface-container: #f3edf7;
+  --surface-container-high: #ece6f0;
+  --surface-variant: #e7e0ec;
+  --on-surface: #1d1b20;
+  --on-surface-variant: #49454f;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  /* 罫線。outline は輪郭のある部品、outline-variant は区切り線 */
+  --outline: #79747e;
+  --outline-variant: #cac4d0;
+
+  /* 不正解・ライブ配信中の印 */
+  --error: #b3261e;
+  --on-error: #ffffff;
+
+  --font-sans: 'Roboto', 'Noto Sans JP', system-ui, sans-serif;
+
+  color-scheme: light;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  color: var(--on-surface);
+  background: var(--surface);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
+  /*
+   * dvh は「今この瞬間に見えている高さ」。
+   *
+   * 100% や 100vh はスマホだと URL バーを隠しきった状態の高さを指すので、
+   * バーが出ている間は画面の下がはみ出し、地球儀を触るとページごと動いてしまう。
+   * dvh はバーの出入りに合わせて縮むので、はみ出しが起きない。
+   */
+  height: 100dvh;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+body {
+  /*
+   * 画面の端まで送ったあとの引っぱりを止める。
+   * これが無いと、パネルを下まで読んだ指がそのままページの再読み込みを引き起こす。
+   */
+  overscroll-behavior: none;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+#root {
+  height: 100%;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+a {
+  color: var(--primary-pressed);
+  text-underline-offset: 3px;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+a:hover {
+  color: var(--primary);
+}
+
+/* ボタンはフォントを継承しない。日本語が游ゴシック等に落ちるのを防ぐ */
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/*
+ * ふりがな。
+ *
+ * <rt> は常に DOM にあり、出し入れは表示の切り替えだけで済ませる。
+ * 消すたびに文字列を組み直すと、そのぶん画面が作り直されて重くなる。
+ */
+rt {
+  font-size: 0.5em;
+  font-weight: 400;
+  letter-spacing: 0;
+  /* ルビは飾りなので、本文を選んでコピーしたときに混ざらないようにする */
+  user-select: none;
+}
+
+[data-furi='false'] rt {
+  display: none;
+}
+
+/*
+ * ルビのぶんだけ行の高さが変わり、出し入れのたびに下の要素がずれる。
+ * あらかじめ上に場所を空けておくと、切り替えても行の位置が動かない。
+ */
+ruby {
+  ruby-position: over;
 }

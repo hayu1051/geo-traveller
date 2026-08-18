@@ -1,0 +1,147 @@
+/*
+ * 都市ピンの見た目。
+ *
+ * 位置は pins.ts が毎フレーム transform で書き換えるので、ここには書かない。
+ * ここが持つのは色・大きさ・状態ごとの差だけ。
+ */
+
+/* ピンを載せる透明な層。canvas の上に重なるが、クリックは下へ通す */
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/*
+ * ピン 1 個。
+ * transform の原点が先端に来るよう、margin で左と上へずらしてある。
+ * こうしておくと pins.ts は都市の座標をそのまま渡すだけでよい。
+ */
+.pin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 22px;
+  height: 30px;
+  margin: -30px 0 0 -11px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.35));
+}
+
+/*
+ * 指で押す端末では、当たり判定だけ広げる。
+ *
+ * ピンの絵は 22×30px しかなく、指の腹より小さい。
+ * 透明な ::after を重ねて 44×44px にすると、見た目はそのままで押しやすくなる。
+ * ヨーロッパのように都市が密なところでは、これが無いと隣を開いてしまう。
+ */
+@media (pointer: coarse) {
+  .pin::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.pin svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.pin path {
+  fill: var(--on-surface);
+  stroke: var(--surface);
+  stroke-width: 1.5;
+}
+
+.pin:hover path {
+  fill: var(--primary);
+}
+
+/* ライブ映像がある都市の目印 */
+.liveDot {
+  fill: var(--error);
+  stroke: var(--surface);
+  stroke-width: 1;
+}
+
+.pin:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 0;
+}
+
+/* 選択中 */
+.selected path {
+  fill: var(--primary);
+}
+
+/* 比較の A。塗りつぶし */
+.compareA path {
+  fill: var(--primary);
+}
+
+/* 比較の B。白抜きにして A と見分ける */
+.compareB path {
+  fill: var(--surface);
+  stroke: var(--primary);
+  stroke-width: 2.5;
+}
+
+/*
+ * 大陸で絞ったとき、外れた都市。
+ * 消さずに薄くするのは、「アジアはここ、その外側にも都市がある」という
+ * 位置関係が見えなくなると、絞り込みの意味が伝わらないため。
+ */
+.dimmed {
+  opacity: 0.22;
+}
+
+/* ピンの頭に出る A / B の文字 */
+.mark {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  transform: translate(-50%, -50%);
+  font: 700 10px/1 var(--font-sans);
+  font-style: normal;
+  color: var(--surface);
+  pointer-events: none;
+}
+
+.compareB .mark {
+  color: var(--primary);
+}
+
+/* 都市名。ふだんは隠れていて、選択中とホバー中だけ出す */
+.label {
+  position: absolute;
+  left: 24px;
+  top: 0;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: var(--on-surface);
+  color: var(--on-primary);
+  font: 600 12px/1 var(--font-sans);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.12s;
+  pointer-events: none;
+}
+
+.pin:hover .label,
+.selected .label,
+.compareA .label,
+.compareB .label {
+  opacity: 1;
+}

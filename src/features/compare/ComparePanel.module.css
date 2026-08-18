@@ -1,0 +1,308 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sectionTitle {
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--primary-pressed);
+}
+
+.lead {
+  margin: 0;
+  padding: 20px 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--on-surface-variant);
+}
+
+/* ----- A / B の枠 ----- */
+
+.slots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/*
+ * えらび中の枠は縁の色で示す。
+ * 枠の太さは常に 2px にしておかないと、切り替わるたびに中身が 1px 動いて目ざわりになる。
+ */
+.slot {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px 10px;
+  border: 2px solid var(--outline-variant);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.slotActive {
+  border-color: var(--primary);
+  background: var(--primary-container);
+}
+
+.slotHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 20px;
+}
+
+.slotLabel {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.slotBadge {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--primary-pressed);
+}
+
+.slotClear {
+  flex: none;
+  margin-left: auto;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.slotClear:hover {
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+}
+
+.slotBody {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.slotFlag {
+  flex: none;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.slotName {
+  flex: 1;
+  min-width: 0;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.slotEmpty {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+}
+
+/* ----- 大きく出す 4 つの数字 ----- */
+
+.headline {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  /* 枠線を引く代わりに背景を透かして、セルの隙間を線に見せる */
+  background: var(--outline-variant);
+  border-top: 1px solid var(--outline-variant);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.headlineCell {
+  padding: 14px 0 14px 14px;
+  background: var(--surface);
+}
+
+.headlineCell:nth-child(odd) {
+  padding-left: 0;
+  padding-right: 14px;
+}
+
+.caption {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--on-surface-variant);
+}
+
+.headlineValue {
+  margin-top: 3px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.15;
+  /* 数字の幅をそろえる。これが無いと 1 秒ごとに横幅が揺れる */
+  font-variant-numeric: tabular-nums;
+  color: var(--primary-pressed);
+}
+
+.headlineNote {
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--on-surface-variant);
+}
+
+/* ----- 日付のずれ ----- */
+
+.dayShift {
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--surface-container);
+}
+
+.dayShiftLead {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.dayShiftText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.8;
+  text-wrap: pretty;
+}
+
+/* ----- 比較表 ----- */
+
+.tableHead,
+.tableRow {
+  display: grid;
+  /* 項目名は固定幅にして、A と B の列幅をそろえる */
+  grid-template-columns: 86px 1fr 1fr;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.tableHead {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--outline);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tableCityA,
+.tableCityB {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.tableRow {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.tableKey {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+}
+
+.tableValue {
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* ----- 都市をえらぶ ----- */
+
+.choiceGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border: 1px solid var(--outline-variant);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.choice:hover {
+  background: var(--surface-container-high);
+}
+
+.choiceTaken {
+  border-color: var(--primary);
+  background: var(--primary-container);
+}
+
+.choiceFlag {
+  flex: none;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.choiceName {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.choiceMark {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 中の文字を 12px へ上げたので、丸も一緒に広げる */
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.choiceHint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--on-surface-variant);
+}
