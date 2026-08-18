@@ -12,6 +12,7 @@ import {
   EMPTY_PAIR,
   type Pair,
 } from './features/compare/selection.ts'
+import { useFuriganaSetting } from './features/furigana/useFuriganaSetting.ts'
 import QuizPanel from './features/quiz/QuizPanel.tsx'
 import { IDLE_QUIZ_GLOBE, type QuizGlobeState } from './features/quiz/types.ts'
 import RecordPanel from './features/record/RecordPanel.tsx'
@@ -58,13 +59,13 @@ function App() {
   /** クイズが地球儀にお願いしていること（名前を隠す／正解を見せる） */
   const [quizGlobe, setQuizGlobe] = useState<QuizGlobeState>(IDLE_QUIZ_GLOBE)
   /*
-   * ふりがなを出すかどうか。小学生から使うので、はじめは出しておく。
+   * ふりがなを出すかどうか。前に開いたときの選択を localStorage から引き継ぐ。
    *
    * ここが持つのは true / false だけ。<rt> は最初から DOM にあり、
    * data-furi を見た CSS が表示を切り替える。切り替えのたびに
    * 文字列を作り直したり、DOM をたどって書きかえたりはしない。
    */
-  const [furiOn, setFuriOn] = useState(true)
+  const { furiOn, toggle: toggleFuri } = useFuriganaSetting()
 
   /*
    * スマホで開いたときの案内。
@@ -207,9 +208,7 @@ function App() {
         tab={tab}
         onTabChange={changeTab}
         furiOn={furiOn}
-        onFuriToggle={() => {
-          setFuriOn((value) => !value)
-        }}
+        onFuriToggle={toggleFuri}
       />
 
       <div className={styles.main}>
