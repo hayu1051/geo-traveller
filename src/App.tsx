@@ -1,6 +1,7 @@
 import { useRef, useState, type ReactNode } from 'react'
 import AppHeader from './components/AppHeader.tsx'
 import GlobeStage from './components/GlobeStage.tsx'
+import SmallScreenNotice from './components/SmallScreenNotice.tsx'
 import type { Continent } from './data/types.ts'
 import ExplorePanel from './features/explore/ExplorePanel.tsx'
 import ComparePanel from './features/compare/ComparePanel.tsx'
@@ -16,7 +17,14 @@ import { IDLE_QUIZ_GLOBE, type QuizGlobeState } from './features/quiz/types.ts'
 import RecordPanel from './features/record/RecordPanel.tsx'
 import { useRecord } from './features/record/useRecord.ts'
 import type { TabId } from './features/tabs.ts'
+import { useMediaQuery } from './lib/useMediaQuery.ts'
 import styles from './App.module.css'
+
+/*
+ * スマホと判定する幅。App.module.css の full レイアウトと同じ値にすること。
+ * ここがずれると、案内は出ないのにレイアウトだけスマホ用になる。
+ */
+const NARROW_QUERY = '(max-width: 599px)'
 
 /*
  * 地球儀とパネルの両方が使う値だけをここで持つ。
@@ -57,6 +65,16 @@ function App() {
    * 文字列を作り直したり、DOM をたどって書きかえたりはしない。
    */
   const [furiOn, setFuriOn] = useState(true)
+
+  /*
+   * スマホで開いたときの案内。
+   *
+   * 覚えておかないので、開き直せばまた出る。localStorage に「読んだ」を
+   * 残すことも考えたが、そうすると一度うっかり閉じた子には二度と届かない。
+   * 止める案内ではなく、すすめる案内なので、毎回出て 1 タップで消える方を選んだ。
+   */
+  const narrow = useMediaQuery(NARROW_QUERY)
+  const [noticeClosed, setNoticeClosed] = useState(false)
 
   /*
    * 位置あてクイズの解答を受け取る関数の置き場。
@@ -198,6 +216,14 @@ function App() {
         <GlobeStage {...globeMarks} onSelectCity={handlePinClick} />
         <aside className={styles.panel}>{panels[tab]}</aside>
       </div>
+
+      {narrow && !noticeClosed && (
+        <SmallScreenNotice
+          onClose={() => {
+            setNoticeClosed(true)
+          }}
+        />
+      )}
     </div>
   )
 }
